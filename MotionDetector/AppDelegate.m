@@ -6,6 +6,7 @@
 //  Copyright © 2018 Leonid. All rights reserved.
 //
 
+
 #import "AppDelegate.h"
 
 @interface AppDelegate ()
@@ -13,13 +14,30 @@
 @end
 
 @implementation AppDelegate
+@synthesize window;
+@synthesize viewController;
 
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
+    viewController = [[ViewController alloc]initWithNibName:nil bundle:nil];
+    
+    self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+    
+    self.window.rootViewController = self.viewController;
+    
+    self.viewController = viewController;
+    
+    // Set loginUIViewController as root view controller
+    [[self window] setRootViewController:viewController];
+    
+    // Override point for customization after app launch
+    [window addSubview:viewController.view];
+    [window makeKeyAndVisible];
+    
+    // Override point for customization after application launch.
     return YES;
 }
-
 
 - (void)applicationWillResignActive:(UIApplication *)application {
     // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
