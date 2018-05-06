@@ -428,8 +428,11 @@
     }else if (selection == 1){
         //Update Status
         //Here, a user specifies his/her plans to unpark the car.
-        
-        [self departingInAlertViewTitle:@"Help other drivers find a spot - let them know when you plan on leaving your current parking spot!" message:@"Choose one:" tag:0];
+        if (self.userInfo.current_session.parking_location.latitude == 0){
+            [self simpleAlertViewTitle:@"You don't seem to have parked yet!" message:@"For a parking spot to be generated in the system, you need to first drive a bit, then stop and start walking."];
+        }else{
+            [self departingInAlertViewTitle:@"Help other drivers find a spot - let them know when you plan on leaving your current parking spot!" message:@"Choose one:" tag:0];
+        }
     }else if (selection == 2){
         InfoViewController* info = [[InfoViewController alloc]initWithTitle:@"About the ParkOut" andContent:[NSString stringWithFormat:@"ParkOut is a user-driven app in which users can see when other users are about to park out of their street parking spots, thus knowing a few minutes ahead of time that a particular parking spot would become available shortly. When users approaches their cars, the car icons on the map become progressively greener. Users cannot see each other's locations, only the locations of other users' cars. GPS location sharing is required use the app."] andUserId:@"" token:@"" enroll:NO dict:nil];
         [self presentViewController:info animated:YES completion:nil];
