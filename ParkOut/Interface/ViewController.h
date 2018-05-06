@@ -17,7 +17,7 @@
 #import "Utils.h"
 #import "SlideUpDrawer.h"
 
-@interface ViewController : UIViewController <CLLocationManagerDelegate,MKMapViewDelegate,SlideMenuDelegate,UIGestureRecognizerDelegate,LoginControllerDelegate,SlideUpDrawerDelegate> {
+@interface ViewController : UIViewController <CLLocationManagerDelegate,MKMapViewDelegate,SlideMenuDelegate,UIGestureRecognizerDelegate,LoginControllerDelegate,SlideUpDrawerDelegate,ManageUserControllerDelegate,UISearchBarDelegate,UITextFieldDelegate> {
     Algorithms* algo;
     MKMapView* map;
     CLLocationCoordinate2D carLocation;
@@ -29,8 +29,10 @@
     NSMutableDictionary* currentAnnotations;
     
     SlideUpDrawer* slider;
+    UITextField* search;
+    
 }
-
+//@property (nonatomic, strong) UISearchBar* searchBar;
 @property (strong, nonatomic) UserInfo* userInfo;
 @property (strong, nonatomic) CLLocationManager *locationManager;
 

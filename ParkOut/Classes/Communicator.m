@@ -170,7 +170,7 @@
                                   loc,@"location",
                                   [NSNumber numberWithDouble:latDelta],@"delta_lat",
                                   [NSNumber numberWithDouble:lngDelta],@"delta_lng",
-                                  user_id,@"user_ud",
+                                  user_id,@"user_id",
                                   nil];
     [self makePostRequest:userInfoDict url:FetchParkingLocations completion:^(NSDictionary* responseDict) {
         NSLog(@"fetchParkingLocations: %@",responseDict);

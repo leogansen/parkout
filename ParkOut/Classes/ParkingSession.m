@@ -10,7 +10,7 @@
 
 @implementation ParkingSession
 
-@synthesize distance_from_car,on_feet,parking_location,speed,status,time_from_car,timestamp,user_id,user_locations,last_significan_location,user_location,interval;
+@synthesize distance_from_car,on_feet,parking_location,speed,status,time_from_car,timestamp,user_id,user_locations,last_significan_location,user_location,interval,prevStatus,departing_in,departure_plan_timestamp;
 
 -(id)init{
     self = [super init];
@@ -36,6 +36,8 @@
         self.last_significan_location = session.last_significan_location;
         self.user_location = session.user_location;
         self.interval = session.interval;
+        self.departing_in = session.departing_in;
+        self.departure_plan_timestamp = session.departure_plan_timestamp;
     }
     return self;
 }
@@ -74,6 +76,12 @@
         if ([dict objectForKey:@"interval"] != [NSNull null]){
             self.interval = [[dict objectForKey:@"interval"] intValue];
         }
+        if ([dict objectForKey:@"departing_in"] != [NSNull null]){
+            self.departing_in = [[dict objectForKey:@"departing_in"] intValue];
+        }//departure_plan_timestamp
+        if ([dict objectForKey:@"departure_plan_timestamp"] != [NSNull null]){
+            self.departure_plan_timestamp = [[dict objectForKey:@"departure_plan_timestamp"] longValue];
+        }
     }
     return self;
 }
@@ -110,6 +118,9 @@
     }
 //    if (self.user_location.latitude != 0){
     [dict setObject:[self coordinateToDictionary:self.user_location] forKey:@"user_location"];
+    [dict setObject:[NSNumber numberWithInt:self.departing_in] forKey:@"departing_in"];
+    [dict setObject:[NSNumber numberWithLong:self.departure_plan_timestamp] forKey:@"departure_plan_timestamp"];
+
 //    }
     return dict;
 }

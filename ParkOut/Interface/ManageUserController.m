@@ -352,6 +352,14 @@
     
     if (self.userInfo.password.length >= 5 && self.userInfo.username.length > 0 && (self.userInfo.email_address.length > 3 && [self.userInfo.email_address containsString:@"@"])){
         
+        if ([self.userInfo.username containsString:@" "]){
+            [self simpleAlertViewTitle:@"A username cannot contain spaces" message:@""];
+            return;
+        }
+        if ([self.userInfo.password containsString:@" "]){
+            [self simpleAlertViewTitle:@"A password cannot contain spaces" message:@""];
+            return;
+        }
         NSMutableDictionary* requestDict = [NSMutableDictionary dictionaryWithObjectsAndKeys:self.userInfo.userinfo_dictionary,@"userInfo",nil];
         [requestDict setObject:self.userInfo.token forKey:@"token"];
         NSError* jsonerror;

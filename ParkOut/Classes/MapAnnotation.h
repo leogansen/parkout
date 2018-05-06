@@ -23,6 +23,8 @@
 @property (readwrite) int tag;
 @property (readwrite) BOOL selected;
 @property (copy, nonatomic) NSString* user_id;
+@property (readwrite) int status;
+@property (readwrite) int departing_in;
 
 -(id) initWithPlace: (Place*) place;
 

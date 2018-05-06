@@ -65,7 +65,8 @@
    
     // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
     if ((viewController.userInfo.current_session.status == PARKING || viewController.userInfo.current_session.status == PARKED_COMING_BACK
-        || viewController.userInfo.current_session.status == PARKED_MOVING_AWAY || viewController.userInfo.current_session.status == PARKED_NOT_IN_RADIUS)
+        || viewController.userInfo.current_session.status == PARKED_MOVING_AWAY || viewController.userInfo.current_session.status == PARKED_NOT_IN_RADIUS
+         || viewController.userInfo.current_session.status == NOT_MOVING)
         && [Algorithms distanceFrom:viewController.userInfo.current_session.user_location to:viewController.userInfo.current_session.parking_location] > DISTANCE_DELTA*2){
         NSLog(@"User not moving");
         viewController.userInfo.current_session.status = NOT_MOVING;

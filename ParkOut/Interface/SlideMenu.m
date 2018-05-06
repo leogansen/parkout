@@ -67,7 +67,7 @@
         if (!self.loggedIn){
             [login setTitle:@"Sign in or register >" forState:UIControlStateNormal];
         }else{
-            [login setTitle:[NSString stringWithFormat:@"Welcome, %@! (update/logout)",userInfo.username] forState:UIControlStateNormal];
+            [login setTitle:[NSString stringWithFormat:@"Hi, %@! (update/logout)",userInfo.first_name] forState:UIControlStateNormal];
             [view addSubview:login];
         }
         

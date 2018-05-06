@@ -18,6 +18,8 @@
 @property (readwrite) double distance_from_car;
 @property (readwrite) double time_from_car;
 @property (readwrite) double speed;
+@property (readwrite) int departing_in;
+@property (readwrite) long departure_plan_timestamp;
 
 @property (readwrite) CLLocationCoordinate2D parking_location;
 @property (readwrite) CLLocationCoordinate2D user_location;
@@ -27,6 +29,8 @@
 @property (readwrite) long timestamp;
 
 @property (copy, nonatomic) NSString* user_id;
+
+@property (readwrite) int prevStatus;
 
 -(BOOL)isSet;
 -(NSDictionary*)dictionary_frontend_calculation;

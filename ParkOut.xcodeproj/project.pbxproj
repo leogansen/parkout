@@ -14,6 +14,7 @@
 		B3936BA12096FA4200ADE8E4 /* LoginController.m in Sources */ = {isa = PBXBuildFile; fileRef = B3936BA02096FA4200ADE8E4 /* LoginController.m */; };
 		B3936BA42096FCCB00ADE8E4 /* Communicator.m in Sources */ = {isa = PBXBuildFile; fileRef = B3936BA32096FCCB00ADE8E4 /* Communicator.m */; };
 		B3936BA72096FD6F00ADE8E4 /* InfoViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B3936BA62096FD6F00ADE8E4 /* InfoViewController.m */; };
+		B3AF4EC4209F802B00D7C211 /* menu@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = B3AF4EC3209F802B00D7C211 /* menu@3x.png */; };
 		B3D5ECD52099843800E69520 /* Place.m in Sources */ = {isa = PBXBuildFile; fileRef = B3D5ECD42099843800E69520 /* Place.m */; };
 		B3D5ECD82099844200E69520 /* MapAnnotation.m in Sources */ = {isa = PBXBuildFile; fileRef = B3D5ECD72099844200E69520 /* MapAnnotation.m */; };
 		B3D5ECDC20998A9F00E69520 /* Utils.m in Sources */ = {isa = PBXBuildFile; fileRef = B3D5ECDB20998A9F00E69520 /* Utils.m */; };
@@ -50,6 +51,7 @@
 		B3936BA32096FCCB00ADE8E4 /* Communicator.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Communicator.m; sourceTree = "<group>"; };
 		B3936BA52096FD6F00ADE8E4 /* InfoViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = InfoViewController.h; sourceTree = "<group>"; };
 		B3936BA62096FD6F00ADE8E4 /* InfoViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = InfoViewController.m; sourceTree = "<group>"; };
+		B3AF4EC3209F802B00D7C211 /* menu@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "menu@3x.png"; sourceTree = "<group>"; };
 		B3D5ECD32099843800E69520 /* Place.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Place.h; sourceTree = "<group>"; };
 		B3D5ECD42099843800E69520 /* Place.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Place.m; sourceTree = "<group>"; };
 		B3D5ECD62099844200E69520 /* MapAnnotation.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MapAnnotation.h; sourceTree = "<group>"; };
@@ -120,6 +122,7 @@
 		B3D5ECD92099881400E69520 /* Designs */ = {
 			isa = PBXGroup;
 			children = (
+				B3AF4EC3209F802B00D7C211 /* menu@3x.png */,
 				B324E6F6209B819A0073D557 /* colors.png */,
 				B3DD6519209E308600C75A2D /* color_cell.png */,
 				B3DD650B209D86F800C75A2D /* location.png */,
@@ -246,6 +249,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B3AF4EC4209F802B00D7C211 /* menu@3x.png in Resources */,
 				B3DD6511209E2D9600C75A2D /* car-position.png in Resources */,
 				B3ED02D6208FC1C40081A122 /* Assets.xcassets in Resources */,
 				B3DD650E209E2D3000C75A2D /* car-position@3x.png in Resources */,

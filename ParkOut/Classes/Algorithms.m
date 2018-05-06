@@ -23,15 +23,22 @@ static NSString* condition;
     NSLog(@"User locations: %d",(int)user.current_session.user_locations.count);
     CLLocationCoordinate2D prevParkingLoc =   CLLocationCoordinate2DMake([[[NSUserDefaults standardUserDefaults]objectForKey:@"parking_location_lat"]doubleValue], [[[NSUserDefaults standardUserDefaults]objectForKey:@"parking_location_lng"]doubleValue]);
     
-    if ([self distanceFrom:prevParkingLoc to:location.coordinate] > MAX_RADIUS){
-        user.current_session.status = UNASSIGNED;
-    }
+//    if ([self distanceFrom:prevParkingLoc to:location.coordinate] > MAX_RADIUS){
+//        user.current_session.status = UNASSIGNED;
+//        user.current_session.parking_location = CLLocationCoordinate2DMake(0, 0);
+//        [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"parking_location_lat"];
+//        [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"parking_location_lng"];
+//    }
+    
     if ([location speed] > 2) {
         if ([self speedStaysDriving:user.current_session.user_locations pings: 2 * FACTOR]){
             user.current_session.status = NOT_PARKED;
-            user.current_session.timestamp = ([[NSDate date] timeIntervalSince1970] * (long)1000);
+            [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"parking_location_lat"];
+            [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"parking_location_lng"];
+            
             [user.current_session.user_locations removeAllObjects];
             user.current_session.last_significan_location = location.coordinate;
+            
         }
     }
     
@@ -140,7 +147,10 @@ static NSString* condition;
                         user.current_session.last_significan_location = location.coordinate;
                     }else if (![self speedStaysWalking:user.current_session.user_locations pings: 5 * FACTOR] && [self distanceIsIncreasing:user.current_session.user_locations reference: user.current_session.parking_location pings:2 * FACTOR]) {
                         user.current_session.status = NOT_PARKED;
-                        user.current_session.timestamp = ([[NSDate date] timeIntervalSince1970] * (long)1000);
+                        [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"parking_location_lat"];
+                        [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"parking_location_lng"];
+                        
+                        
                         [user.current_session.user_locations removeAllObjects];
                         user.current_session.last_significan_location = location.coordinate;
                     }else if ([self distanceFrom:[location coordinate] to:user.current_session.last_significan_location] > DISTANCE_DELTA){
@@ -182,6 +192,16 @@ static NSString* condition;
             
         }
         
+    }
+    
+    if (user.current_session.status != user.current_session.prevStatus){
+        if (user.current_session.status == NOT_PARKED){
+            user.current_session.timestamp = ([[NSDate date] timeIntervalSince1970] * (long)1000);
+        }
+        user.current_session.prevStatus = user.current_session.status;
+    }else if (user.current_session.status == NOT_PARKED && ([[NSDate date] timeIntervalSince1970] * (long)1000) - user.current_session.timestamp < 30000 && user.current_session.distance_from_car < 50){
+        user.current_session.parking_location = CLLocationCoordinate2DMake(0, 0);
+        //we remove this from the system only after 30 seconds. For the user himself, it disappears from the defaults right away
     }
     return user.current_session.status;
 }
