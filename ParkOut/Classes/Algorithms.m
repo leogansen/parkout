@@ -23,12 +23,12 @@ static NSString* condition;
     NSLog(@"User locations: %d",(int)user.current_session.user_locations.count);
     CLLocationCoordinate2D prevParkingLoc =   CLLocationCoordinate2DMake([[[NSUserDefaults standardUserDefaults]objectForKey:@"parking_location_lat"]doubleValue], [[[NSUserDefaults standardUserDefaults]objectForKey:@"parking_location_lng"]doubleValue]);
     
-//    if ([self distanceFrom:prevParkingLoc to:location.coordinate] > MAX_RADIUS){
-//        user.current_session.status = UNASSIGNED;
-//        user.current_session.parking_location = CLLocationCoordinate2DMake(0, 0);
-//        [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"parking_location_lat"];
-//        [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"parking_location_lng"];
-//    }
+    if (user.current_session.status != UNASSIGNED && [self distanceFrom:prevParkingLoc to:location.coordinate] > MAX_RADIUS){
+        user.current_session.status = UNASSIGNED;
+        user.current_session.parking_location = CLLocationCoordinate2DMake(0, 0);
+        [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"parking_location_lat"];
+        [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"parking_location_lng"];
+    }
     
     if ([location speed] > 2) {
         if ([self speedStaysDriving:user.current_session.user_locations pings: 2 * FACTOR]){

@@ -60,7 +60,7 @@
     [self.view addSubview:search];
     
     UIButton* openMenuButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    openMenuButton.frame = CGRectMake(13, 25, 24, 24);
+    openMenuButton.frame = CGRectMake(15, 27, 20, 20);
     [openMenuButton addTarget:self action:@selector(openMenu) forControlEvents:UIControlEventTouchDown];
     [openMenuButton setImage:[UIImage imageNamed:@"menu@3x.png"] forState:UIControlStateNormal];
     [self.view addSubview:openMenuButton];
@@ -71,7 +71,16 @@
     self.locationManager.delegate = self;
     
     
-    //    self.locationManager.allowsBackgroundLocationUpdates = YES;
+    if ([self.locationManager respondsToSelector:@selector(requestWhenInUseAuthorization)]) {
+        [self.locationManager requestWhenInUseAuthorization];
+    }
+    if ([self.locationManager respondsToSelector:@selector(requestAlwaysAuthorization)]) {
+        [self.locationManager requestAlwaysAuthorization];
+    }
+    if ([[[UIDevice currentDevice] systemVersion] floatValue] >= 9.0) {
+        self.locationManager.allowsBackgroundLocationUpdates = YES;
+    }
+    
     self.locationManager.pausesLocationUpdatesAutomatically = NO;
     
     
@@ -225,7 +234,7 @@
 -(void)loginControllerDidLogIn:(UserInfo *)userInfo{
     NSLog(@"loginControllerDidLogIn");
     self.userInfo = [[UserInfo alloc]initWithUserInfo:userInfo];
-    self.userInfo.current_session.status = UNASSIGNED;
+//    self.userInfo.current_session.status = NOT_PARKED;//
     userInfo.current_session.status = [[[NSUserDefaults standardUserDefaults] objectForKey:@"status"]intValue];
 
     NSLog(@"status???: %d",self.userInfo.current_session.status);
@@ -308,8 +317,8 @@
     [self.locationManager stopUpdatingLocation];
 }
 -(void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray<CLLocation *> *)locations{
-    NSLog(@"horizontalAccuracy: %f",[locations[locations.count - 1] horizontalAccuracy]);
-    if ([locations[locations.count - 1] horizontalAccuracy] > 20){
+    NSLog(@"horizontalAccuracy: %f speed: %f",[locations[locations.count - 1] horizontalAccuracy],[locations[locations.count - 1] speed]);
+    if ([locations[locations.count - 1] horizontalAccuracy] > 60){
         badSignalCount++;
         if (badSignalCount == 30){
             self.userInfo.current_session.status = NOT_MOVING;
@@ -326,9 +335,13 @@
         && carLocation.longitude != self.userInfo.current_session.parking_location.longitude){
         [map removeAnnotations:map.annotations];
         
-        MKMapCamera *newCamera = [MKMapCamera camera];
-        [newCamera setCenterCoordinate:self.userInfo.current_session.parking_location];
-        [map setCamera:newCamera];
+        MKCoordinateRegion region;
+        region.center.latitude     = self.userInfo.current_session.parking_location.latitude;
+        region.center.longitude    = self.userInfo.current_session.parking_location.longitude;
+        region.span.latitudeDelta  = .01;
+        region.span.longitudeDelta = .05;
+        [map setRegion:region animated:YES];
+
         [[NSUserDefaults standardUserDefaults]setObject:[NSNumber numberWithDouble:self.userInfo.current_session.parking_location.latitude] forKey:@"parking_location_lat"];
         [[NSUserDefaults standardUserDefaults]setObject:[NSNumber numberWithDouble:self.userInfo.current_session.parking_location.longitude] forKey:@"parking_location_lng"];
         [self addMyParkingLocation];
@@ -587,11 +600,13 @@
 }
 
 -(void)locate{
-    MKMapCamera *newCamera = [MKMapCamera camera];
-    [newCamera setCenterCoordinate:map.userLocation.coordinate];
-    [newCamera setCenterCoordinate:CLLocationCoordinate2DMake(41.06613039508561, -74.27250039770665)];//test
+    MKCoordinateRegion region;
+    region.center.latitude     = map.userLocation.coordinate.latitude;
+    region.center.longitude    = map.userLocation.coordinate.longitude;
+    region.span.latitudeDelta  = .01;
+    region.span.longitudeDelta = .05;
+    [map setRegion:region animated:YES];
 
-    [map setCamera:newCamera];
 }
 -(void)geocodeAddress:(NSString*)address completion:(void (^)(BOOL,NSError*,CLLocationCoordinate2D))completion
 {

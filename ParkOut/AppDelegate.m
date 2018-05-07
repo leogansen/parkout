@@ -74,6 +74,7 @@
         [Communicator reportStatus:viewController.userInfo.current_session completion:^(BOOL success, BOOL message_exists, NSString *message) {
             
         }];
+        [viewController.locationManager startMonitoringSignificantLocationChanges];
         sleep(5);
     }
 
