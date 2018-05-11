@@ -13,7 +13,7 @@
 @end
 
 @implementation ViewController
-@synthesize userInfo;
+@synthesize userInfo,motionManager;
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)bundleOrNil
 {
@@ -27,14 +27,13 @@
 
         pinTag = 1;
         currentAnnotations = [NSMutableDictionary dictionary];
-        
+        self.motionManager = [[CMMotionManager alloc] init];
     }
     return self;
 }
 - (void)viewDidLoad {
     [super viewDidLoad];
-       
-    
+
     // Do any additional setup after loading the view, typically from a nib.
     
     self.view.backgroundColor = [UIColor whiteColor];
@@ -131,9 +130,24 @@
    
 }
 -(void)addMyParkingLocation{
+    long leavingIn = ([[NSDate date] timeIntervalSince1970] * 1000 - self.userInfo.current_session.departure_plan_timestamp);
+    NSString*  desc = @"Tap to set when you plan to unpark.";
+    if (self.userInfo.current_session.departing_in == -1){
+        desc = @" ";
+    }else if (self.userInfo.current_session.departing_in == 0 || [[NSDate date] timeIntervalSince1970] * 1000 - self.userInfo.current_session.departure_plan_timestamp > self.userInfo.current_session.departing_in * 60 * 1000){
+         desc = @"Tap to set when you plan to unpark.";
+    }else{
+        NSString* adjustment = @"";
+        if (self.userInfo.current_session.departing_in > 20){
+            adjustment = @"over ";
+        }
+        long minutesLeft = self.userInfo.current_session.departing_in - leavingIn/60000;
+        desc = [NSString stringWithFormat:@"You are set to unpark in %@%d min",adjustment,(int)minutesLeft];
+    }
+    
     Place* parkingPlace = [[Place alloc]initWithLatitude:[[[NSUserDefaults standardUserDefaults]objectForKey:@"parking_location_lat"]doubleValue] longitude:[[[NSUserDefaults standardUserDefaults]objectForKey:@"parking_location_lng"]doubleValue]];
     parkingPlace.name = [NSString stringWithFormat:@"YOU PARKED HERE"];
-    parkingPlace.description = @"";
+    parkingPlace.description = desc;
     MapAnnotation* parkingAnnotation = [[MapAnnotation alloc]initWithPlace:parkingPlace];
     parkingAnnotation.title = parkingPlace.name;
     parkingAnnotation.image = [UIImage imageNamed:@"car-position@3x.png"];
@@ -161,14 +175,14 @@
                         long leavingIn = ([[NSDate date] timeIntervalSince1970] * 1000 - session.departure_plan_timestamp);
                         NSLog(@"LEAVING IN: %ld",leavingIn);
                         NSLog(@"LEAVING IN: %ld",leavingIn/60000);
-
+                        
                         if (session.departing_in == -1){
                             
                         }else if (session.departing_in == 0 || [[NSDate date] timeIntervalSince1970] * 1000 - session.departure_plan_timestamp > session.departing_in * 60 * 1000){
                             parkingPlace.description = @"Ask the driver when they'd be leaving (tap)";
                         }else{
                             NSString* adjustment = @"";
-                            if (session.departing_in > 20){
+                            if (session.departing_in >= 20){
                                 adjustment = @"over ";
                             }
                             long minutesLeft = session.departing_in - leavingIn/60000;
@@ -182,10 +196,11 @@
                     parkingAnnotation.title = parkingPlace.name;
                     parkingAnnotation.image = [Utils drawCircle:session.distance_from_car status:session.status];
                     parkingAnnotation.description = parkingPlace.description;
-                    parkingAnnotation.user_id = session.user_id;
+                    parkingAnnotation.driver_id = session.user_id;
                     parkingAnnotation.tag = pinTag;
                     parkingAnnotation.status = session.status;
                     parkingAnnotation.departing_in = session.departing_in;
+                    
                     if (session.status == -1){
                         //This is also handled by the algorithms, but just in case:
                         //if user was 50 meters or more away from car when he unparked, we don't show an empty spot:
@@ -198,6 +213,7 @@
                     }else{
                         
                         [map addAnnotation:parkingAnnotation];
+                        NSLog(@"selectedAnnotationId: %@ user_id: %@",selectedAnnotationId,session.user_id);
                         if ([selectedAnnotationId isEqualToString:session.user_id]){
                             [map selectAnnotation:parkingAnnotation animated:NO];
                             [currentAnnotations removeAllObjects];
@@ -259,13 +275,33 @@
                     NSLog(@"Logged IN");
                     NSLog(@"responseDict: %@",responseDict);
                     self.userInfo = [[UserInfo alloc]initWithDictionary:[responseDict objectForKey:@"userInfo"]];
+                    //Developer
+                    d = [[DeveloperController alloc]initWithUserInfo:self.userInfo];
+
+                    self.userInfo.log = [self.userInfo.log stringByAppendingString:[NSString stringWithFormat:@"Logged in: %f",[[NSDate date] timeIntervalSince1970]]];
+                    
                     self.userInfo.loggedIn = YES;
 //                    self.userInfo.current_session.status = NOT_PARKED;//test
                     self.userInfo.current_session.status = [[[NSUserDefaults standardUserDefaults] objectForKey:@"status"]intValue];
+                    self.userInfo.log = [self.userInfo.log stringByAppendingString:[NSString stringWithFormat:@"\nInitial status: %d", self.userInfo.current_session.status]];
+                            NSLog(@"LOG?: %@",self.userInfo.log);
+
+                    //This is only called if the user closed the app while driving. If he's moved not too far away, and re-opened the app within a few minutes, we assume that he is parking at the point of opening the app. Otherwise, we discard the fact that the user has been driving and start anew.
+                    if (self.userInfo.current_session.status == NOT_PARKED && [Algorithms distanceFrom:self.locationManager.location.coordinate to:CLLocationCoordinate2DMake([[[NSUserDefaults standardUserDefaults]valueForKey:@"last_lat"]doubleValue], [[[NSUserDefaults standardUserDefaults]valueForKey:@"last_lng"]doubleValue])] > MAX_RADIUS && [[NSDate date]timeIntervalSince1970] - [[[NSUserDefaults standardUserDefaults]valueForKey:@"last_signal_timestamp"]longValue] > 600){
+                        self.userInfo.current_session.status = UNASSIGNED;
+                        [[NSUserDefaults standardUserDefaults] setValue:[NSNumber numberWithInt:UNASSIGNED] forKey:@"status"];
+                        self.userInfo.log = [self.userInfo.log stringByAppendingString:[NSString stringWithFormat:@"\nModified status: %d", self.userInfo.current_session.status]];
+                    };
+                    
+                    self.userInfo.current_session.departing_in = [[[NSUserDefaults standardUserDefaults]valueForKey:@"departing_in"]intValue];
+                    self.userInfo.current_session.departure_plan_timestamp = [[[NSUserDefaults standardUserDefaults]valueForKey:@"departure_plan_timestamp"]longValue];
+                    
                     CLLocationCoordinate2D prevParkingLoc =   CLLocationCoordinate2DMake([[[NSUserDefaults standardUserDefaults]objectForKey:@"parking_location_lat"]doubleValue], [[[NSUserDefaults standardUserDefaults]objectForKey:@"parking_location_lng"]doubleValue]);
                     
                     NSLog(@"CURRENT STATUS AT LOG IN: %d",self.userInfo.current_session.status);
                     userInfo.current_session.parking_location = prevParkingLoc;
+                    self.userInfo.log = [self.userInfo.log stringByAppendingString:[NSString stringWithFormat:@"\nParking location: %f,%f", prevParkingLoc.latitude,prevParkingLoc.longitude]];
+
                     [self start];
                     
                     if (timer != nil){
@@ -273,8 +309,12 @@
                         timer = nil;
                     }
                     timer = [NSTimer scheduledTimerWithTimeInterval:5 target:self selector:@selector(fetchParkingLocations) userInfo:nil repeats:YES];
-                    NSLog(@"Location manager: ");
-
+                    NSLog(@"Motion manager. Detect if the user is walking or running");
+                    
+                    [self.motionManager startAccelerometerUpdatesToQueue:[[NSOperationQueue alloc] init]
+                                                             withHandler:^(CMAccelerometerData *accelerometerData, NSError *error){
+                                                                 [Algorithms detectShaking:accelerometerData.acceleration userInfo:self.userInfo];
+                                                             }];
                     //Do something
                 }else{
                     LoginController* lc = [[LoginController alloc]init];
@@ -330,9 +370,14 @@
     
     NSLog(@"status: %d",status);
    
+    if (mapShouldFollowUser && locations[locations.count - 1].coordinate.latitude != 0){
+        [self focusMapOnUserLocation];
+    }
     
     if (carLocation.latitude != self.userInfo.current_session.parking_location.latitude
         && carLocation.longitude != self.userInfo.current_session.parking_location.longitude){
+        mapShouldFollowUser = NO;
+        
         [map removeAnnotations:map.annotations];
         
         MKCoordinateRegion region;
@@ -382,7 +427,8 @@
             }
         }];
     }
-
+    [d updateLocation:(locations[locations.count - 1])];
+    
 }
 -(void)checkIfLocationIsValid:(CLLocationCoordinate2D)location{
     CLLocation* loc = [[CLLocation alloc]initWithLatitude:location.latitude longitude:location.longitude];
@@ -468,6 +514,9 @@
         [[NSUserDefaults standardUserDefaults]removeObjectForKey:@"password"];
         [timer invalidate];
         [self stop];
+    }else if (selection == 6){
+        
+        [self presentViewController:d animated:YES completion:nil];
     }
 }
 -(void)slideMenuDidRemoveWithTask:(NSInteger)task loggedIn:(BOOL)loggedIn{
@@ -550,7 +599,9 @@
         pinForRoute.frame = CGRectMake(0, 0, 30, 30);
         [map addAnnotation:pinForRoute.annotation];
         pinForRoute.canShowCallout = YES;
-
+        UIButton *rightButton = [UIButton buttonWithType:UIButtonTypeDetailDisclosure];
+        rightButton.tag = 2;
+        pinForRoute.rightCalloutAccessoryView = rightButton;
         return pinForRoute;
     }else{
         MKAnnotationView* pinViewNormal = [[MKAnnotationView alloc] initWithAnnotation:annotation reuseIdentifier:@"pinViewNormal"];
@@ -565,10 +616,10 @@
                 [rightButton setImage:[UIImage imageNamed:@"location.png"] forState:UIControlStateNormal];
                 pinViewNormal.rightCalloutAccessoryView = rightButton;
             }else{
-                if ([(MapAnnotation*)annotation departing_in] == 0){
-                    UIButton *rightButton = [UIButton buttonWithType:UIButtonTypeDetailDisclosure];
-                    pinViewNormal.rightCalloutAccessoryView = rightButton;
-                }
+                UIButton *rightButton = [UIButton buttonWithType:UIButtonTypeDetailDisclosure];
+                rightButton.tag = 3;
+                rightButton.frame = CGRectMake(0, 0, 30, 30);
+                pinViewNormal.rightCalloutAccessoryView = rightButton;
             }
         }
         
@@ -594,12 +645,28 @@
 -(void)mapView:(MKMapView *)mapView annotationView:(MKAnnotationView *)view calloutAccessoryControlTapped:(UIControl *)control{
     if (control.tag == 1){
         NSLog(@"WILL NAVIGATE");
-    }else{
+    }else if (control.tag == 2){
+        NSLog(@"WILL SET MY PLAN");
+        //Update Status
+        //Here, a user specifies his/her plans to unpark the car.
+        if (self.userInfo.current_session.parking_location.latitude == 0){
+            [self simpleAlertViewTitle:@"You don't seem to have parked yet!" message:@"For a parking spot to be generated in the system, you need to first drive a bit, then stop and start walking."];
+        }else{
+            [self departingInAlertViewTitle:@"Help other drivers find a spot - let them know when you plan on leaving your current parking spot!" message:@"Choose one:" tag:0];
+        }
+    }else if (control.tag == 3){
         NSLog(@"WILL ASK A QUESTION");
+        [Communicator postNotification:[(MapAnnotation*)view.annotation driver_id] message:@"Other users in the area would like to know when you'd be parking out. Please help other users by updating your intentions!" completion:^(BOOL success, BOOL message_exists, NSString *message) {
+            [mapView deselectAnnotation:view.annotation animated:YES];
+        }];
     }
 }
 
 -(void)locate{
+    mapShouldFollowUser = YES;
+    [self focusMapOnUserLocation];
+}
+-(void)focusMapOnUserLocation{
     MKCoordinateRegion region;
     region.center.latitude     = map.userLocation.coordinate.latitude;
     region.center.longitude    = map.userLocation.coordinate.longitude;
@@ -608,6 +675,7 @@
     [map setRegion:region animated:YES];
 
 }
+
 -(void)geocodeAddress:(NSString*)address completion:(void (^)(BOOL,NSError*,CLLocationCoordinate2D))completion
 {
     
@@ -634,10 +702,22 @@
         }
     }];
 }
+-(void)touchesMoved:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event{
+    NSLog(@"touchesMoved");
+    mapShouldFollowUser = NO;
+}
+
+-(void)locationManager:(CLLocationManager *)manager didEnterRegion:(nonnull CLRegion *)region{
+    [self simpleAlertViewTitle:@"Region Changed!" message:@""];
+//    CLLocation* loc = [[CLLocation alloc]initWithLatitude:region.center.latitude longitude:region.center.longitude];
+//    [Algorithms determineStatus:loc userInfo:self.userInfo];
+}
 
 -(void)tapReceived:(UITapGestureRecognizer*)recognizer{
     [search resignFirstResponder];
+    NSLog(@"tapReceived");
 }
+
 -(BOOL)textFieldShouldReturn:(UITextField *)textField{
     [self geocodeAddress:textField.text completion:^(BOOL success, NSError *error, CLLocationCoordinate2D location) {
         
@@ -648,6 +728,18 @@
 -(void)textFieldDidEndEditing:(UITextField *)textField{
     [textField resignFirstResponder];
 
+}
+-(void)updateParkingAnnotation{
+    for (int i = 0; i < map.annotations.count; i++){
+        if ([map.annotations[i] respondsToSelector:@selector(tag)] && [(MapAnnotation*)map.annotations[i] tag] == 0){
+            [map removeAnnotation:map.annotations[i]];
+        }
+    }
+    [self addMyParkingLocation];
+}
+
+-(void)updateIntentions{
+    [self departingInAlertViewTitle:@"Help other drivers find a spot - let them know when you plan on leaving your current parking spot!" message:@"Choose one:" tag:0];
 }
 
 - (void)departingInAlertViewTitle:(NSString*)title message:(NSString*)message tag:(int)tag
@@ -668,6 +760,7 @@
                                    NSLog(@"WTF: %d",self.userInfo.current_session.departing_in);
                                    self.userInfo.current_session.departure_plan_timestamp = [[NSDate date] timeIntervalSince1970] * (long)1000;
                                    [self simpleAlertViewTitle:@"Thank you!" message:@" You've set your plan to depart in 5 mins."];
+                                   [self updateParkingAnnotation];
                                }];
     
     [alert addAction:button5];
@@ -682,7 +775,7 @@
                                    self.userInfo.current_session.departing_in = 15;
                                   self.userInfo.current_session.departure_plan_timestamp = [[NSDate date] timeIntervalSince1970] * (long)1000;
                                   [self simpleAlertViewTitle:@"Thank you!" message:@" You've set your plan to depart in 15 mins."];
-
+                                  [self updateParkingAnnotation];
                               }];
     
     [alert addAction:button15];
@@ -695,7 +788,7 @@
                                   self.userInfo.current_session.departing_in = 20;
                                   self.userInfo.current_session.departure_plan_timestamp = [[NSDate date] timeIntervalSince1970] * (long)1000;
                                   [self simpleAlertViewTitle:@"Thank you!" message:@" You've set your plan to depart in over 20 mins."];
-
+                                  [self updateParkingAnnotation];
                               }];
     
     [alert addAction:button20];
@@ -729,6 +822,39 @@
     [alert addAction:okButton];
     
     [self presentViewController:alert animated:YES completion:nil];
+}
+
+- (void)alertForParkingLocation:(NSString*)title message:(NSString*)message tag:(int)tag{
+    UIAlertController * alert = [UIAlertController
+                                 alertControllerWithTitle:title
+                                 message:message
+                                 preferredStyle:UIAlertControllerStyleAlert];
+    
+    
+    UIAlertAction* askButton = [UIAlertAction
+                                   actionWithTitle:@"Ask driver to update when they'd be parking out"
+                                   style:UIAlertActionStyleDefault
+                                   handler:^(UIAlertAction * action) {
+                                       //Handle your yes please button action here
+                                   }];
+    [alert addAction:askButton];
+
+    UIAlertAction* navigateButton = [UIAlertAction
+                                actionWithTitle:@"Nagivate to the spot"
+                                style:UIAlertActionStyleDefault
+                                handler:^(UIAlertAction * action) {
+                                    //Handle your yes please button action here
+                                }];
+    [alert addAction:navigateButton];
+
+    UIAlertAction* cancelButton = [UIAlertAction
+                               actionWithTitle:@"Cancel"
+                               style:UIAlertActionStyleDefault
+                               handler:^(UIAlertAction * action) {
+                                   //Handle your yes please button action here
+                               }];
+    [alert addAction:cancelButton];
+
 }
 
 @end

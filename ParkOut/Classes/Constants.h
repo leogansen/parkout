@@ -22,6 +22,10 @@ FOUNDATION_EXPORT float const DISTANCE_DELTA;
 FOUNDATION_EXPORT float const IN_RADIUS;
 FOUNDATION_EXPORT float const MAX_RADIUS;
 
+FOUNDATION_EXPORT float const MAX_WALKING_DISTANCE;
+FOUNDATION_EXPORT float const DRIVING_SPEED;
+FOUNDATION_EXPORT float const RUNNING_SPEED;
+
 FOUNDATION_EXPORT NSString *const LogIn;
 FOUNDATION_EXPORT NSString *const ValidateRegistrationToken;
 FOUNDATION_EXPORT NSString *const RegisterUser;
@@ -30,3 +34,5 @@ FOUNDATION_EXPORT NSString *const ChangePassword;
 FOUNDATION_EXPORT NSString *const RecoverPassword;
 FOUNDATION_EXPORT NSString *const UpdateStatus;
 FOUNDATION_EXPORT NSString *const FetchParkingLocations;
+FOUNDATION_EXPORT NSString *const PostNotification;
+

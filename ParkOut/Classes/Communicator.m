@@ -215,11 +215,35 @@
         }
     }];
 }
++(void)postNotification:(NSString*)requested_user_id message:(NSString*)message completion:(void (^)(BOOL,BOOL,NSString*))completion{
+    NSDictionary* userInfoDict = [NSDictionary dictionaryWithObjectsAndKeys:
+                                  requested_user_id,@"user_id",
+                                  message,@"message",
+                                  nil];
+    [self makePostRequest:userInfoDict url:PostNotification completion:^(NSDictionary*responseDict) {
+        if (responseDict != nil){
+            if ([[responseDict objectForKey:@"message_exists"]boolValue] == NO){
+                dispatch_async(dispatch_get_main_queue(), ^(void){
+                    completion(YES,NO,nil);
+                });
+            }else{
+                dispatch_async(dispatch_get_main_queue(), ^(void){
+                    completion(NO,NO,[responseDict objectForKey:@"message"]);
+                });
+            }
+        }else{
+            dispatch_async(dispatch_get_main_queue(), ^(void){
+                completion(NO,NO,@"ERROR");
+            });
+        }
+    }];
+}
+
 +(void)makePostRequest:(NSDictionary*)dict url:(NSString*)url_path completion:(void (^)(NSDictionary* ))completion{
     NSError* jsonerror;
     NSData* jsonData = [NSJSONSerialization dataWithJSONObject:dict
                                                        options:NSJSONWritingPrettyPrinted error:&jsonerror];
-    NSLog(@"POST dict: %@",dict);
+    NSLog(@"POST dict to %@: %@",url_path,dict);
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^(void){
         
         NSURL *url = [NSURL URLWithString:url_path];

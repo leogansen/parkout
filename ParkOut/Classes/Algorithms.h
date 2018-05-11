@@ -10,11 +10,13 @@
 #import <MapKit/MapKit.h>
 #import "UserInfo.h"
 #import "Constants.h"
+#import <CoreMotion/CoreMotion.h>
 
 @interface Algorithms : NSObject
 
 +(int)determineStatus:(CLLocation*)location userInfo:(UserInfo*)user;
 +(NSString*)getCondition;
 +(double)distanceFrom:(CLLocationCoordinate2D)coord1 to:(CLLocationCoordinate2D)coord2;
++ (void)detectShaking:(CMAcceleration)_acceleration userInfo:(UserInfo*)user;
 
 @end

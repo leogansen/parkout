@@ -9,7 +9,7 @@
 #import "MapAnnotation.h"
 
 @implementation MapAnnotation
-@synthesize coordinate,title,place,image,tag,description,selected,user_id,status,departing_in;
+@synthesize coordinate,title,place,image,tag,description,selected,user_id,status,departing_in,driver_id;
 
 -(id)initWithPlace:(Place*)_place{
     self = [super init];
@@ -17,6 +17,7 @@
         coordinate.latitude = _place.latitude;
         coordinate.longitude = _place.longitude;
         self.place = _place;
+
     }
     return self;
 }

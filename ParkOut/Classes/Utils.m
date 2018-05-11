@@ -43,7 +43,7 @@
         CGImageRef imageRef = [colors_image CGImage];
         NSUInteger width = CGImageGetWidth(imageRef);
         NSLog(@"Colors: %d",(int)width);
-        float x = (width / 20.0f) * distance;
+        float x = (width / MAX_WALKING_DISTANCE) * distance;
         if (x >= width){
             x = width - 2;
         }

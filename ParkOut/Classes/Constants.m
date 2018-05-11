@@ -27,6 +27,11 @@ float const DISTANCE_DELTA = 0.0001;
 float const IN_RADIUS = 0.002;
 float const MAX_RADIUS = 0.06;
 
+float const MAX_WALKING_DISTANCE = 160;
+
+float const DRIVING_SPEED = 5;
+float const RUNNING_SPEED = 3;
+
 NSString *const LogIn = baseURL@"LogIn";
 NSString *const ValidateRegistrationToken = baseURL@"ValidateRegistrationToken";
 NSString *const RegisterUser = baseURL@"RegisterUser";
@@ -35,3 +40,5 @@ NSString *const ChangePassword = baseURL@"ChangePassword";
 NSString *const RecoverPassword = baseURL@"RecoverPassword";
 NSString *const UpdateStatus = baseURL@"UpdateStatus";
 NSString *const FetchParkingLocations = baseURL@"FetchParkingLocations";
+NSString *const PostNotification = baseURL@"PostNotification";
+

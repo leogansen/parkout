@@ -25,6 +25,7 @@
 @property (copy, nonatomic) NSString* user_id;
 @property (readwrite) int status;
 @property (readwrite) int departing_in;
+@property (copy, nonatomic) NSString* driver_id;
 
 -(id) initWithPlace: (Place*) place;
 

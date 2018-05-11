@@ -16,6 +16,7 @@
 #import "MapAnnotation.h"
 #import "Utils.h"
 #import "SlideUpDrawer.h"
+#import "DeveloperController.h"
 
 @interface ViewController : UIViewController <CLLocationManagerDelegate,MKMapViewDelegate,SlideMenuDelegate,UIGestureRecognizerDelegate,LoginControllerDelegate,SlideUpDrawerDelegate,ManageUserControllerDelegate,UISearchBarDelegate,UITextFieldDelegate> {
     Algorithms* algo;
@@ -31,10 +32,17 @@
     SlideUpDrawer* slider;
     UITextField* search;
     
+    DeveloperController* d;
+    
+    BOOL mapShouldFollowUser;
+    
 }
 //@property (nonatomic, strong) UISearchBar* searchBar;
 @property (strong, nonatomic) UserInfo* userInfo;
 @property (strong, nonatomic) CLLocationManager *locationManager;
+@property (strong, nonatomic) CMMotionManager *motionManager;
+
+-(void)updateIntentions;
 
 @end
 

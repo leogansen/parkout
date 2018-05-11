@@ -38,6 +38,9 @@
     if (self){
         self.current_session = [[ParkingSession alloc]initWithParkingSession:user.current_session];
         self.log = user.log;
+        if (self.log == nil){
+            self.log = @"";
+        }
         self.username = user.username;
         self.password = user.password;
         self.email_address = user.email_address;
@@ -111,7 +114,9 @@
         }
         self.current_session.user_id = self.user_id;
         
-        
+        if (self.log == nil){
+            self.log = @"";
+        }
     }
     return self;
 }
@@ -128,7 +133,7 @@
             self.last_name,@"last_name",
             self.suffix,@"suffix",
             self.user_id, @"user_id",
-            
+            [[NSUserDefaults standardUserDefaults] objectForKey:@"DEVICE_TOKEN"],@"device_token",
             //Others?
             nil];
 }

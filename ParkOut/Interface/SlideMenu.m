@@ -17,7 +17,7 @@
     if (self){
         self.loggedIn = _loggedIn;
         if (self.loggedIn){
-            self.items = @[@"Find My Car",@"Update Status",@"About",@"Update Info",@"Logout",@"Cancel"];
+            self.items = @[@"Find My Car",@"Update Status",@"About",@"Update Info",@"Logout",@"Cancel",@"Developer Console"];
         }else{
             self.items = @[@"About ParkOut", @"Cancel"];
         }
