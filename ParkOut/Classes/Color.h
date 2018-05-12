@@ -16,6 +16,8 @@
 
 + (UIColor *)appColorMedium1;
 
++ (UIColor *)appColorMedium2;
+
 + (UIColor *)appColorLight;
 
 

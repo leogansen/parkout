@@ -73,12 +73,17 @@
     [[NSUserDefaults standardUserDefaults] setValue:[NSNumber numberWithInt:viewController.userInfo.current_session.departing_in] forKey:@"departing_in"];
     [[NSUserDefaults standardUserDefaults] setValue:[NSNumber numberWithLong:viewController.userInfo.current_session.departure_plan_timestamp] forKey:@"departure_plan_timestamp"];
     
+    [[NSUserDefaults standardUserDefaults] setValue:[NSNumber numberWithDouble:viewController.locationManager.location.coordinate.latitude] forKey:@"last_lat"];
+    [[NSUserDefaults standardUserDefaults] setValue:[NSNumber numberWithDouble:viewController.locationManager.location.coordinate.longitude] forKey:@"last_lng"];
+    [[NSUserDefaults standardUserDefaults] setValue:[NSNumber numberWithLong:[[NSDate date]timeIntervalSince1970]] forKey:@"last_signal_timestamp"];
+
     // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
-    if ((viewController.userInfo.current_session.status == PARKING || viewController.userInfo.current_session.status == PARKED_COMING_BACK
+    if ((viewController.userInfo.current_session.status == PARKED_COMING_BACK
         || viewController.userInfo.current_session.status == PARKED_MOVING_AWAY || viewController.userInfo.current_session.status == PARKED_NOT_IN_RADIUS
          || viewController.userInfo.current_session.status == NOT_MOVING)
-        && [Algorithms distanceFrom:viewController.userInfo.current_session.user_location to:viewController.userInfo.current_session.parking_location] > DISTANCE_DELTA*2
-        && viewController.userInfo.current_session.isSet){
+//        && [Algorithms distanceFrom:viewController.userInfo.current_session.user_location to:viewController.userInfo.current_session.parking_location] > DISTANCE_DELTA*2
+//        && viewController.userInfo.current_session.isSet
+        ){
         NSLog(@"User not moving");
         viewController.userInfo.current_session.status = NOT_MOVING;
         [[NSUserDefaults standardUserDefaults] setValue:[NSNumber numberWithInt:NOT_MOVING] forKey:@"status"];
@@ -87,14 +92,14 @@
         }];
         [viewController.locationManager startMonitoringSignificantLocationChanges];
         sleep(5);
-    }else if (viewController.userInfo.current_session.status == NOT_PARKED){
+    }else if (viewController.userInfo.current_session.status == NOT_PARKED || viewController.userInfo.current_session.status == UNASSIGNED || viewController.userInfo.current_session.status == PARKING){
         [[NSUserDefaults standardUserDefaults] setValue:[NSNumber numberWithInt:NOT_PARKED] forKey:@"status"];
         [Communicator reportStatus:viewController.userInfo.current_session completion:^(BOOL success, BOOL message_exists, NSString *message) {
             
         }];
-        [[NSUserDefaults standardUserDefaults] setValue:[NSNumber numberWithDouble:viewController.locationManager.location.coordinate.latitude] forKey:@"last_lat"];
-        [[NSUserDefaults standardUserDefaults] setValue:[NSNumber numberWithDouble:viewController.locationManager.location.coordinate.longitude] forKey:@"last_lng"];
-        [[NSUserDefaults standardUserDefaults] setValue:[NSNumber numberWithLong:[[NSDate date]timeIntervalSince1970]] forKey:@"last_signal_timestamp"];
+        
+    }else{
+        
     }
 
 }

@@ -76,6 +76,9 @@
     // Dispose of any resources that can be recreated.
 }
 -(void)updateLocation:(CLLocation*)location{
+    if (location == nil){
+        return;
+    }
     NSLog(@"horizontalAccuracy: %f",[location horizontalAccuracy]);
     if ([location horizontalAccuracy] > 20){
         badSignalCount++;

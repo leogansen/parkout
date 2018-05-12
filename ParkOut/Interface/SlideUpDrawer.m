@@ -310,6 +310,7 @@
     
     if (!isOpen && indexPath.row == 0){
         view.text = @"(tap to expand)";
+        view.textColor = [UIColor darkTextColor];
     }
     
     NSLog(@"indentation width: %f, %ld",cell.indentationWidth,(long)cell.indentationLevel);

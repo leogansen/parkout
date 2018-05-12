@@ -23,7 +23,7 @@ int const UNPARKING = 5;
 int const NOT_MOVING = 6;
 
 int const FACTOR = 3;
-float const DISTANCE_DELTA = 0.0001;
+float const DISTANCE_DELTA = 0.00015;
 float const IN_RADIUS = 0.002;
 float const MAX_RADIUS = 0.06;
 

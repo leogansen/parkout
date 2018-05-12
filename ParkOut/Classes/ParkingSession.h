@@ -23,7 +23,7 @@
 
 @property (readwrite) CLLocationCoordinate2D parking_location;
 @property (readwrite) CLLocationCoordinate2D user_location;
-@property (readwrite) CLLocationCoordinate2D last_significan_location;
+@property (readwrite) CLLocationCoordinate2D last_significant_location;
 
 @property (strong, nonatomic) NSMutableArray* user_locations;
 @property (readwrite) long timestamp;

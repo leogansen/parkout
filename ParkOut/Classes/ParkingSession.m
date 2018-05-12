@@ -10,7 +10,7 @@
 
 @implementation ParkingSession
 
-@synthesize distance_from_car,on_feet,parking_location,speed,status,time_from_car,timestamp,user_id,user_locations,last_significan_location,user_location,interval,prevStatus,departing_in,departure_plan_timestamp;
+@synthesize distance_from_car,on_feet,parking_location,speed,status,time_from_car,timestamp,user_id,user_locations,last_significant_location,user_location,interval,prevStatus,departing_in,departure_plan_timestamp;
 
 -(id)init{
     self = [super init];
@@ -33,7 +33,7 @@
         self.user_id = session.user_id;
         self.user_locations = [[NSMutableArray alloc]initWithArray: session.user_locations];
         self.user_id = session.user_id;
-        self.last_significan_location = session.last_significan_location;
+        self.last_significant_location = session.last_significant_location;
         self.user_location = session.user_location;
         self.interval = session.interval;
         self.departing_in = session.departing_in;
@@ -87,7 +87,8 @@
 }
 
 -(BOOL)isSet{
-    if ((int)self.parking_location.latitude != 0 && (int)self.parking_location.longitude != 0){
+    float distance = [self distanceFrom:self.parking_location to:CLLocationCoordinate2DMake(0, 0)];
+    if (distance > 1){
         return YES;
     }else{
         return NO;
@@ -123,6 +124,14 @@
 
 //    }
     return dict;
+}
+-(double)distanceFrom:(CLLocationCoordinate2D)coord1 to:(CLLocationCoordinate2D)coord2{
+    NSLog(@"distanceFrom");
+    
+    double dx = coord1.longitude - coord2.longitude;
+    double dy = coord1.latitude - coord2.latitude;
+    double distance = sqrt(dx*dx + dy*dy);
+    return distance;
 }
 
 @end

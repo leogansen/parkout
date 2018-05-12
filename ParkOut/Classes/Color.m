@@ -20,6 +20,9 @@
 + (UIColor *)appColorMedium1{
     return [UIColor colorWithRed:102/255. green:177/255. blue:231/255. alpha:1];
 }
++ (UIColor *)appColorMedium2{
+    return [UIColor colorWithRed:57/255. green:192/255. blue:246/255. alpha:1];
+}
 + (UIColor *)appColorLight{
     return [UIColor colorWithRed:114/255. green:194/255. blue:253/255. alpha:1];
 }
