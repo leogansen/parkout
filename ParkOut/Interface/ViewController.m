@@ -457,7 +457,7 @@
     }
     [d updateLocation:(locations[locations.count - 1])];
     
-    if (lastRegionLocation != nil && [lastRegionLocation distanceFromLocation:locations[locations.count - 1]] > 1000){
+    if (lastRegionLocation != nil && [lastRegionLocation distanceFromLocation:locations[locations.count - 1]] > 1000 && locations[locations.count - 1].speed > 40){
         self.userInfo.current_session.region_changed = YES;
         lastRegionLocation = locations[locations.count - 1];
     }else if (lastRegionLocation == nil){
