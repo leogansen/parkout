@@ -38,7 +38,7 @@
     
     self.view.backgroundColor = [UIColor whiteColor];
    
-    map = [[MKMapView alloc]initWithFrame:self.view.frame];
+    map = [[MKMapView alloc]initWithFrame:CGRectMake(0, 64, self.view.frame.size.width, self.view.frame.size.height - 64 - 60)];
     map.delegate = self;
     [self.view addSubview:map];
     [map setShowsUserLocation:YES];
