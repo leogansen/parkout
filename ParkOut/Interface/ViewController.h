@@ -36,6 +36,8 @@
     
     BOOL mapShouldFollowUser;
     
+    CLLocation* lastRegionLocation;
+    
 }
 //@property (nonatomic, strong) UISearchBar* searchBar;
 @property (strong, nonatomic) UserInfo* userInfo;

@@ -14,12 +14,12 @@
 @end
 
 @implementation ManageUserController
-@synthesize userInfo,delegate;
+@synthesize userInfo,delegate,vehicleMakes;
 
 -(id)initWithUserInfo:(UserInfo*)_userInfo{
     self = [super init];
     if (self){
-        
+        self.vehicleMakes = @[@"<not set>",@"Alfa Romeo",@"Alpina",@"Aston Martin",@"Audi",@"Bentley",@"BMW",@"Citroen",@"Dacia",@"DS",@"Ferrari",@"Fiat",@"Ford",@"Honda",@"Hyundai",@"Infiniti",@"Jaguar",@"Jeep",@"Kia",@"Lamborghini",@"Land Rover",@"Lexus",@"Lotus",@"Maserati",@"Mazda",@"McLaren",@"Mercedes",@"MG",@"Mini",@"Mitsubishi",@"Nissan",@"Peugeot",@"Porsche",@"Renault",@"Rolls-Royce",@"Seat",@"Skoda",@"Smart",@"SsangYong",@"Subaru",@"Suzuki",@"Tesla",@"Toyota",@"Vauxhall",@"Volkswagen",@"Volvo"];
         self.userInfo = _userInfo;
         
         [self setupView];
@@ -34,6 +34,7 @@
             title.text = _userInfo.title;
             suffix.text = _userInfo.suffix;
             middleName.text = _userInfo.middle_name;
+            vehicleMake.text = _userInfo.vehicle_make;
             
             buttonTitle = @"Update";
             newUser = false;
@@ -47,6 +48,12 @@
         [registerUser setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
         [registerUser addTarget:self action:@selector(registerUser) forControlEvents:UIControlEventTouchDown];
         [self.view addSubview:registerUser];
+        
+        customPicker = [[CustomPickerView alloc]initWithArray:self.vehicleMakes frame:CGRectMake(0, self.view.frame.size.height - 200, self.view.frame.size.width, 200)];
+        customPicker.delegate = self;
+        customPicker.hidden = YES;
+        [self.view addSubview:customPicker];
+        
     }
     return self;
 }
@@ -175,8 +182,16 @@
     suffix.borderStyle = UITextBorderStyleRoundedRect;
     [scroll addSubview:suffix];
     
-    float prevY = suffix.frame.origin.y +  suffix.frame.size.height + 10;
-   
+    
+    vehicleMake = [[UITextField alloc]initWithFrame:CGRectMake(10, suffix.frame.origin.y +  suffix.frame.size.height + 10, self.view.frame.size.width - 20, 40)];
+    vehicleMake.tag = 10;
+    vehicleMake.placeholder = @"Vehicle Make";
+    vehicleMake.delegate = self;
+    vehicleMake.autocorrectionType = UITextAutocorrectionTypeNo;
+    vehicleMake.clearButtonMode = YES;
+    vehicleMake.borderStyle = UITextBorderStyleRoundedRect;
+    [scroll addSubview:vehicleMake];
+    
     
     CGRect contentRect = CGRectZero;
     for (UIView *view in scroll.subviews) {
@@ -205,8 +220,33 @@
     [activity startAnimating];
     activity.transform = CGAffineTransformMakeScale(1.5, 1.5);
     [activity setColor:[UIColor darkTextColor]];
+ 
+    UITapGestureRecognizer* tap = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(hidePicker)];
+    [self.view addGestureRecognizer:tap];
     
 }
+-(void)hidePicker{
+    customPicker.hidden = YES;
+    
+}
+
+-(void)customPickerViewDidSelectRow:(NSInteger)row{
+    if (row == 0){
+        vehicleMake.text = @"";
+    }else{
+        vehicleMake.text = self.vehicleMakes[row];
+    }
+}
+
+-(void)pickerView:(UIPickerView *)pickerView didSelectRow:(NSInteger)row inComponent:(NSInteger)component{
+    if (row == 0){
+        vehicleMake.text = @"";
+    }else{
+        vehicleMake.text = self.vehicleMakes[row];
+    }
+}
+
+
 -(void)dismissThisController{
     [self dismissViewControllerAnimated:YES completion:^{
         if ([self.delegate respondsToSelector:@selector(manageUserControllerDidCancel)]){
@@ -334,21 +374,44 @@
         self.userInfo.last_name = textField.text;
     if (textField.tag == 9)
         self.userInfo.suffix = textField.text;
-   
-    
+//    if (textField.tag == 10)
+//        self.userInfo.vehicle_make = textField.text;
     [textField resignFirstResponder];
     
 }
+
+-(void)customPickerShouldClose{
+    [self hidePicker];
+}
+-(BOOL)textFieldShouldBeginEditing:(UITextField *)textField{
+    if (textField.tag == 10){
+        if (customPicker.hidden){
+            [scroll scrollRectToVisible:CGRectMake(0, textField.frame.origin.y, textField.frame.size.width, textField.frame.size.height) animated:YES];
+            customPicker.hidden = NO;
+            NSLog(@"Showing picker");
+        }else{
+            customPicker.hidden = YES;
+        }
+        return NO;
+    }else{
+        customPicker.hidden = YES;
+        return YES;
+    }
+}
+
 -(void)textFieldDidBeginEditing:(UITextField *)textField{
     NSLog(@"editing");
+
     [scroll scrollRectToVisible:CGRectMake(0, textField.frame.origin.y + textField.frame.size.height + 240, textField.frame.size.width, textField.frame.size.height) animated:YES];
+
 }
+
 
 - (void)registerUserWithCompletion:(void (^)(BOOL,NSString*))completion{
     dispatch_async(dispatch_get_main_queue(), ^(void){
         [self.view addSubview:activity];
     });
-    
+    self.userInfo.vehicle_make = vehicleMake.text;
     
     if (self.userInfo.password.length >= 5 && self.userInfo.username.length > 0 && (self.userInfo.email_address.length > 3 && [self.userInfo.email_address containsString:@"@"])){
         

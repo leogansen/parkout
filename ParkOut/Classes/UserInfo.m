@@ -10,7 +10,7 @@
 
 @implementation UserInfo
 
-@synthesize current_session,parking_location,log,email_address,first_name,last_name,loggedIn,password,token,user_id,username,middle_name,suffix,title;
+@synthesize current_session,parking_location,log,email_address,first_name,last_name,loggedIn,password,token,user_id,username,middle_name,suffix,title,vehicle_make;
 
 -(id)init{
     self = [super init];
@@ -30,6 +30,7 @@
         self.suffix = @"";
         self.loggedIn = NO;
         self.log = @"";
+        self.vehicle_make = @"";
     }
     return self;
 }
@@ -54,6 +55,7 @@
         self.suffix = user.suffix;
         self.loggedIn = user.loggedIn;
         self.current_session.user_id = self.user_id;
+        self.vehicle_make = self.vehicle_make;
     }
     return self;
 }
@@ -112,6 +114,12 @@
             self.user_id = [dict objectForKey:@"user_id"];
             
         }
+        self.vehicle_make = @"";
+        if ([dict objectForKey:@"vehicle_make"] != [NSNull null]){
+            self.vehicle_make = [dict objectForKey:@"vehicle_make"];
+            
+        }
+        
         self.current_session.user_id = self.user_id;
         
         if (self.log == nil){
@@ -133,6 +141,7 @@
             self.last_name,@"last_name",
             self.suffix,@"suffix",
             self.user_id, @"user_id",
+            self.vehicle_make, @"vehicle_make",
             [[NSUserDefaults standardUserDefaults] objectForKey:@"DEVICE_TOKEN"],@"device_token",
             //Others?
             nil];

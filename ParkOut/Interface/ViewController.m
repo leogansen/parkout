@@ -457,6 +457,16 @@
     }
     [d updateLocation:(locations[locations.count - 1])];
     
+    if (lastRegionLocation != nil && [lastRegionLocation distanceFromLocation:locations[locations.count - 1]] > 1000){
+        self.userInfo.current_session.region_changed = YES;
+        lastRegionLocation = locations[locations.count - 1];
+    }else if (lastRegionLocation == nil){
+        lastRegionLocation = locations[locations.count - 1];
+        self.userInfo.current_session.region_changed = NO;
+    }else{
+        self.userInfo.current_session.region_changed = NO;
+    }
+    
 }
 -(void)checkIfLocationIsValid:(CLLocationCoordinate2D)location{
     CLLocation* loc = [[CLLocation alloc]initWithLatitude:location.latitude longitude:location.longitude];

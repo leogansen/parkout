@@ -22,6 +22,7 @@
 @property(copy, nonatomic) NSString* suffix;
 @property(readwrite) BOOL loggedIn;
 @property(copy, nonatomic) NSString* user_id;
+@property(copy, nonatomic) NSString* vehicle_make;
 
 @property(copy, nonatomic) NSString* token;
 @property (strong, nonatomic) ParkingSession* current_session;

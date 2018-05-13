@@ -32,6 +32,8 @@
 
 @property (readwrite) int prevStatus;
 
+@property (readwrite) BOOL region_changed;
+
 -(BOOL)isSet;
 -(NSDictionary*)dictionary_frontend_calculation;
 -(id)initWithPSDictionary:(NSDictionary*)dict;

@@ -36,6 +36,7 @@
 		B3ED02E7208FC6A10081A122 /* UserInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = B3ED02E6208FC6A10081A122 /* UserInfo.m */; };
 		B3ED02EB208FC7660081A122 /* Constants.m in Sources */ = {isa = PBXBuildFile; fileRef = B3ED02EA208FC7660081A122 /* Constants.m */; };
 		B3ED02EE208FC8C90081A122 /* ParkingSession.m in Sources */ = {isa = PBXBuildFile; fileRef = B3ED02ED208FC8C90081A122 /* ParkingSession.m */; };
+		B3F473D720A8CD690019379D /* CustomPickerView.m in Sources */ = {isa = PBXBuildFile; fileRef = B3F473D620A8CD690019379D /* CustomPickerView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -89,6 +90,8 @@
 		B3ED02EA208FC7660081A122 /* Constants.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Constants.m; sourceTree = "<group>"; };
 		B3ED02EC208FC8C90081A122 /* ParkingSession.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ParkingSession.h; sourceTree = "<group>"; };
 		B3ED02ED208FC8C90081A122 /* ParkingSession.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ParkingSession.m; sourceTree = "<group>"; };
+		B3F473D520A8CD690019379D /* CustomPickerView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CustomPickerView.h; sourceTree = "<group>"; };
+		B3F473D620A8CD690019379D /* CustomPickerView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CustomPickerView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -109,6 +112,8 @@
 				B3936BA62096FD6F00ADE8E4 /* InfoViewController.m */,
 				B3936B9F2096FA4200ADE8E4 /* LoginController.h */,
 				B3936BA02096FA4200ADE8E4 /* LoginController.m */,
+				B3F473D520A8CD690019379D /* CustomPickerView.h */,
+				B3F473D620A8CD690019379D /* CustomPickerView.m */,
 				B3936B9B2096F1C300ADE8E4 /* ManageUserController.h */,
 				B3936B9C2096F1C300ADE8E4 /* ManageUserController.m */,
 				B36DA6562093F8B70065C99B /* SlideMenu.h */,
@@ -293,6 +298,7 @@
 				B3ED02E4208FC6550081A122 /* Algorithms.m in Sources */,
 				B318B49E20A2D53E007EE6F1 /* DeveloperController.m in Sources */,
 				B36DA65B2093F8D60065C99B /* Color.m in Sources */,
+				B3F473D720A8CD690019379D /* CustomPickerView.m in Sources */,
 				B3DD6515209E2F6E00C75A2D /* SlideUpDrawer.m in Sources */,
 				B3936BA42096FCCB00ADE8E4 /* Communicator.m in Sources */,
 				B3936BA72096FD6F00ADE8E4 /* InfoViewController.m in Sources */,
