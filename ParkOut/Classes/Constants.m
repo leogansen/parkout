@@ -29,8 +29,8 @@ float const MAX_RADIUS = 0.06;
 
 float const MAX_WALKING_DISTANCE = 160;
 
-float const DRIVING_SPEED = 5;
-float const RUNNING_SPEED = 3;
+float const DRIVING_SPEED = 6;
+float const RUNNING_SPEED = 4;
 
 NSString *const LogIn = baseURL@"LogIn";
 NSString *const ValidateRegistrationToken = baseURL@"ValidateRegistrationToken";

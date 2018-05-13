@@ -85,8 +85,8 @@ static NSString* condition;
                     user.log = [user.log stringByAppendingString:[NSString stringWithFormat:@"2. setting status to PARKING"]];
 
                     user.current_session.last_significant_location = location.coordinate;
-                }else if (user.current_session.status == PARKED_NOT_IN_RADIUS || user.current_session.status == PARKED_MOVING_AWAY
-                          || user.current_session.status == PARKED_COMING_BACK){
+                }else if ((user.current_session.status == PARKED_NOT_IN_RADIUS || user.current_session.status == PARKED_MOVING_AWAY
+                          || user.current_session.status == PARKED_COMING_BACK) && user.current_session.isSet) {
                     if (user.current_session.user_locations.count > 15 * FACTOR && [self speedStaysLow:user.current_session.user_locations pings: 15 * FACTOR]) {
                         if (user.current_session.status == PARKED_COMING_BACK){
                             if ([self distanceFrom:location.coordinate to:user.current_session.parking_location] > DISTANCE_DELTA){
@@ -137,8 +137,8 @@ static NSString* condition;
                             user.current_session.last_significant_location = location.coordinate;
                         }
                     }
-                }else if (user.current_session.status == PARKED_NOT_IN_RADIUS || user.current_session.status == PARKED_MOVING_AWAY
-                          || user.current_session.status == PARKED_COMING_BACK || user.current_session.status == UNPARKING || user.current_session.status == NOT_MOVING) {
+                }else if ((user.current_session.status == PARKED_NOT_IN_RADIUS || user.current_session.status == PARKED_MOVING_AWAY
+                          || user.current_session.status == PARKED_COMING_BACK || user.current_session.status == UNPARKING || user.current_session.status == NOT_MOVING) && user.current_session.isSet) {
                     
                     if ([self distanceFrom:location.coordinate to:user.current_session.parking_location] < 0.00003){
                         
