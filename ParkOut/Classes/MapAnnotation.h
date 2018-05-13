@@ -26,6 +26,7 @@
 @property (readwrite) int status;
 @property (readwrite) int departing_in;
 @property (copy, nonatomic) NSString* driver_id;
+@property (readwrite) BOOL user_intention_set;
 
 -(id) initWithPlace: (Place*) place;
 

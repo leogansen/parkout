@@ -19,6 +19,7 @@
 @property (readwrite) float latitude;
 @property (readwrite) float longitude;
 @property (readwrite) int tag;
+@property (readwrite) BOOL user_intention_set;
 
 -(id)initWithLatitude:(float)lat longitude:(float)lng;
 -(id)init;

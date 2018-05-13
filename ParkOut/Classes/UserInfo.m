@@ -29,7 +29,7 @@
         self.middle_name = @"";
         self.suffix = @"";
         self.loggedIn = NO;
-        
+        self.log = @"";
     }
     return self;
 }

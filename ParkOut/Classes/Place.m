@@ -9,7 +9,7 @@
 #import "Place.h"
 
 @implementation Place
-@synthesize name,exit,description,latitude,longitude,tag;
+@synthesize name,exit,description,latitude,longitude,tag,user_intention_set;
 
 -(id)init{
     self = [super init];

@@ -94,7 +94,7 @@
         [viewController.locationManager startMonitoringSignificantLocationChanges];
         sleep(5);
     }else if (viewController.userInfo.current_session.status == NOT_PARKED || viewController.userInfo.current_session.status == UNASSIGNED || viewController.userInfo.current_session.status == PARKING){
-        [[NSUserDefaults standardUserDefaults] setValue:[NSNumber numberWithInt:NOT_PARKED] forKey:@"status"];
+        [[NSUserDefaults standardUserDefaults] setValue:[NSNumber numberWithInt:viewController.userInfo.current_session.status] forKey:@"status"];
         [Communicator reportStatus:viewController.userInfo.current_session completion:^(BOOL success, BOOL message_exists, NSString *message) {
             
         }];

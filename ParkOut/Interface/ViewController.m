@@ -197,6 +197,7 @@
                             }
                             long minutesLeft = session.departing_in - leavingIn/60000;
                             parkingPlace.description = [NSString stringWithFormat:@"Driver plans on leaving in %@%d minutes",adjustment,(int)minutesLeft];
+                            parkingPlace.user_intention_set = YES;
                         }
                     }else{
                         parkingPlace.name = [NSString stringWithFormat:@"LEAVING IN"];
@@ -210,7 +211,7 @@
                     parkingAnnotation.tag = pinTag;
                     parkingAnnotation.status = session.status;
                     parkingAnnotation.departing_in = session.departing_in;
-                    
+                    parkingAnnotation.user_intention_set = parkingPlace.user_intention_set;
                     if (session.status == -1){
                         //This is also handled by the algorithms, but just in case:
                         //if user was 50 meters or more away from car when he unparked, we don't show an empty spot:
@@ -298,7 +299,8 @@
     NSLog(@"LOG?: %@",self.userInfo.log);
     
     if (self.userInfo.current_session.status != UNASSIGNED && self.userInfo.current_session.status != NOT_PARKED && !self.userInfo.current_session.isSet){
-        self.userInfo.log = [self.userInfo.log stringByAppendingString:[NSString stringWithFormat:@"\nERROR. Status is: %d, but the car is not parked\n", self.userInfo.current_session.status]];
+        self.userInfo.log = [self.userInfo.log stringByAppendingString:[NSString stringWithFormat:@"\nERROR. Status is: %d, but the car is not parked. Setting back to UNASSIGNED\n", self.userInfo.current_session.status]];
+        self.userInfo.current_session.status = UNASSIGNED;
     }
     self.userInfo.current_session.last_significant_location = CLLocationCoordinate2DMake([[[NSUserDefaults standardUserDefaults]valueForKey:@"last_lat"]doubleValue], [[[NSUserDefaults standardUserDefaults]valueForKey:@"last_lng"]doubleValue]);
     self.userInfo.log = [self.userInfo.log stringByAppendingString:[NSString stringWithFormat:@"\nLast significant location: %f,%f", self.userInfo.current_session.last_significant_location.latitude,self.userInfo.current_session.last_significant_location.longitude]];
@@ -642,10 +644,12 @@
                 [rightButton setImage:[UIImage imageNamed:@"location.png"] forState:UIControlStateNormal];
                 pinViewNormal.rightCalloutAccessoryView = rightButton;
             }else{
-                UIButton *rightButton = [UIButton buttonWithType:UIButtonTypeDetailDisclosure];
-                rightButton.tag = 3;
-                rightButton.frame = CGRectMake(0, 0, 30, 30);
-                pinViewNormal.rightCalloutAccessoryView = rightButton;
+                if (![(MapAnnotation*)annotation user_intention_set]){
+                    UIButton *rightButton = [UIButton buttonWithType:UIButtonTypeDetailDisclosure];
+                    rightButton.tag = 3;
+                    rightButton.frame = CGRectMake(0, 0, 30, 30);
+                    pinViewNormal.rightCalloutAccessoryView = rightButton;
+                }
             }
         }
         
@@ -758,6 +762,10 @@
 -(void)textFieldDidEndEditing:(UITextField *)textField{
     [textField resignFirstResponder];
 
+}
+-(BOOL)textFieldShouldBeginEditing:(UITextField *)textField{
+    mapShouldFollowUser = NO;
+    return YES;
 }
 -(void)updateParkingAnnotation{
     for (int i = 0; i < map.annotations.count; i++){
