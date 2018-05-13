@@ -43,6 +43,7 @@
     // Override point for customization after application launch.
     
     [[UIApplication sharedApplication] registerForRemoteNotifications];
+    [self registerForRemoteNotifications];
     
     return YES;
 }
@@ -113,6 +114,9 @@
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [[UIApplication sharedApplication] registerForRemoteNotifications];
                 });
+            }else{
+                NSLog(@"ERROR registering for notifications");
+
             }
         }];
     }

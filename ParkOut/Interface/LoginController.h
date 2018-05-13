@@ -14,8 +14,9 @@
 #import "ManageUserController.h"
 
 @protocol LoginControllerDelegate <NSObject>
-
+@optional
 -(void)loginControllerDidLogIn:(UserInfo*)userInfo;
+-(void)loginControllerDidLogInWithDictionary:(NSDictionary*)responseDict;
 
 @end
 

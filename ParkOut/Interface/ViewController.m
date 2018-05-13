@@ -257,14 +257,78 @@
     
   
 }
--(void)loginControllerDidLogIn:(UserInfo *)userInfo{
-    NSLog(@"loginControllerDidLogIn");
-    self.userInfo = [[UserInfo alloc]initWithUserInfo:userInfo];
-//    self.userInfo.current_session.status = NOT_PARKED;//
-    userInfo.current_session.status = [[[NSUserDefaults standardUserDefaults] valueForKey:@"status"]intValue];
-
-    NSLog(@"status???: %d",self.userInfo.current_session.status);
-
+//-(void)loginControllerDidLogIn:(UserInfo *)userInfo{
+//    NSLog(@"loginControllerDidLogIn");
+//    self.userInfo = [[UserInfo alloc]initWithUserInfo:userInfo];
+////    self.userInfo.current_session.status = NOT_PARKED;//
+//    userInfo.current_session.status = [[[NSUserDefaults standardUserDefaults] valueForKey:@"status"]intValue];
+//
+//    NSLog(@"status???: %d",self.userInfo.current_session.status);
+//
+//}
+-(void)loginControllerDidLogInWithDictionary:(NSDictionary *)responseDict{
+    [self loginSuccess:responseDict];
+}
+-(void)loginSuccess:(NSDictionary*)responseDict{
+    NSLog(@"Logged IN");
+    NSLog(@"responseDict: %@",responseDict);
+    self.userInfo = [[UserInfo alloc]initWithDictionary:[responseDict objectForKey:@"userInfo"]];
+    //Developer
+    d = [[DeveloperController alloc]initWithUserInfo:self.userInfo];
+    
+    
+    self.userInfo.log = [self.userInfo.log stringByAppendingString:[NSString stringWithFormat:@"Logged in: %f",[[NSDate date] timeIntervalSince1970]]];
+    
+    self.userInfo.loggedIn = YES;
+    
+    
+    self.userInfo.current_session.departing_in = [[[NSUserDefaults standardUserDefaults]valueForKey:@"departing_in"]intValue];
+    self.userInfo.current_session.departure_plan_timestamp = [[[NSUserDefaults standardUserDefaults]valueForKey:@"departure_plan_timestamp"]longValue];
+    
+    CLLocationCoordinate2D prevParkingLoc =   CLLocationCoordinate2DMake([[[NSUserDefaults standardUserDefaults]objectForKey:@"parking_location_lat"]doubleValue], [[[NSUserDefaults standardUserDefaults]objectForKey:@"parking_location_lng"]doubleValue]);
+    
+    NSLog(@"CURRENT STATUS AT LOG IN: %d",self.userInfo.current_session.status);
+    self.userInfo.current_session.parking_location = prevParkingLoc;
+    self.userInfo.log = [self.userInfo.log stringByAppendingString:[NSString stringWithFormat:@"\nParking location: %f,%f", prevParkingLoc.latitude,prevParkingLoc.longitude]];
+    
+    self.userInfo.current_session.status = [[[NSUserDefaults standardUserDefaults] valueForKey:@"status"]intValue];
+    
+    
+    self.userInfo.log = [self.userInfo.log stringByAppendingString:[NSString stringWithFormat:@"\nInitial status: %d", self.userInfo.current_session.status]];
+    NSLog(@"LOG?: %@",self.userInfo.log);
+    
+    if (self.userInfo.current_session.status != UNASSIGNED && self.userInfo.current_session.status != NOT_PARKED && !self.userInfo.current_session.isSet){
+        self.userInfo.log = [self.userInfo.log stringByAppendingString:[NSString stringWithFormat:@"\nERROR. Status is: %d, but the car is not parked\n", self.userInfo.current_session.status]];
+    }
+    self.userInfo.current_session.last_significant_location = CLLocationCoordinate2DMake([[[NSUserDefaults standardUserDefaults]valueForKey:@"last_lat"]doubleValue], [[[NSUserDefaults standardUserDefaults]valueForKey:@"last_lng"]doubleValue]);
+    self.userInfo.log = [self.userInfo.log stringByAppendingString:[NSString stringWithFormat:@"\nLast significant location: %f,%f", self.userInfo.current_session.last_significant_location.latitude,self.userInfo.current_session.last_significant_location.longitude]];
+    
+    //This is only called if the user closed the app while driving. If he's moved not too far away, and re-opened the app within a few minutes, we assume that he is parking at the point of opening the app. Otherwise, we discard the fact that the user has been driving and start anew.
+    if (self.userInfo.current_session.status == NOT_PARKED && [[NSDate date]timeIntervalSince1970] - [[[NSUserDefaults standardUserDefaults]valueForKey:@"last_signal_timestamp"]longValue] > 30){
+        self.userInfo.current_session.status = UNASSIGNED;
+        [[NSUserDefaults standardUserDefaults] setValue:[NSNumber numberWithInt:UNASSIGNED] forKey:@"status"];
+        self.userInfo.parking_location = CLLocationCoordinate2DMake(0, 0);
+        [[NSUserDefaults standardUserDefaults]setObject:[NSNumber numberWithDouble:self.userInfo.parking_location.latitude] forKey:@"parking_location_lat"];
+        [[NSUserDefaults standardUserDefaults]setObject:[NSNumber numberWithDouble:self.userInfo.parking_location.longitude] forKey:@"parking_location_lng"];
+        self.userInfo.log = [self.userInfo.log stringByAppendingString:[NSString stringWithFormat:@"\nModified status: %d", self.userInfo.current_session.status]];
+    };
+    
+    [self start];
+    
+    if (timer != nil){
+        [timer invalidate];
+        timer = nil;
+    }
+    timer = [NSTimer scheduledTimerWithTimeInterval:5 target:self selector:@selector(fetchParkingLocations) userInfo:nil repeats:YES];
+    NSLog(@"Motion manager. Detect if the user is walking or running");
+    
+    [self.motionManager startAccelerometerUpdatesToQueue:[[NSOperationQueue alloc] init]
+                                             withHandler:^(CMAccelerometerData *accelerometerData, NSError *error){
+                                                 [Algorithms detectShaking:accelerometerData.acceleration userInfo:self.userInfo];
+                                             }];
+    //Do something
+    
+    [self locate];
 }
 
 -(void)viewDidAppear:(BOOL)animated{
@@ -282,60 +346,7 @@
         if ([[NSUserDefaults standardUserDefaults]objectForKey:@"username"] != nil && [[NSUserDefaults standardUserDefaults]objectForKey:@"password"] != nil){
             [Communicator logInWithUsername:[[NSUserDefaults standardUserDefaults]objectForKey:@"username"]  password:[[NSUserDefaults standardUserDefaults]objectForKey:@"password"]  completion:^(NSDictionary* responseDict, BOOL success) {
                 if (success){
-                    NSLog(@"Logged IN");
-                    NSLog(@"responseDict: %@",responseDict);
-                    self.userInfo = [[UserInfo alloc]initWithDictionary:[responseDict objectForKey:@"userInfo"]];
-                    //Developer
-                    d = [[DeveloperController alloc]initWithUserInfo:self.userInfo];
-                   
-                    
-                    self.userInfo.log = [self.userInfo.log stringByAppendingString:[NSString stringWithFormat:@"Logged in: %f",[[NSDate date] timeIntervalSince1970]]];
-                    
-                    self.userInfo.loggedIn = YES;
-                
-                    
-                    self.userInfo.current_session.departing_in = [[[NSUserDefaults standardUserDefaults]valueForKey:@"departing_in"]intValue];
-                    self.userInfo.current_session.departure_plan_timestamp = [[[NSUserDefaults standardUserDefaults]valueForKey:@"departure_plan_timestamp"]longValue];
-                    
-                    CLLocationCoordinate2D prevParkingLoc =   CLLocationCoordinate2DMake([[[NSUserDefaults standardUserDefaults]objectForKey:@"parking_location_lat"]doubleValue], [[[NSUserDefaults standardUserDefaults]objectForKey:@"parking_location_lng"]doubleValue]);
-                    
-                    NSLog(@"CURRENT STATUS AT LOG IN: %d",self.userInfo.current_session.status);
-                    self.userInfo.current_session.parking_location = prevParkingLoc;
-                    self.userInfo.log = [self.userInfo.log stringByAppendingString:[NSString stringWithFormat:@"\nParking location: %f,%f", prevParkingLoc.latitude,prevParkingLoc.longitude]];
-
-                     self.userInfo.current_session.status = [[[NSUserDefaults standardUserDefaults] valueForKey:@"status"]intValue];
-                    
-                    
-                    self.userInfo.log = [self.userInfo.log stringByAppendingString:[NSString stringWithFormat:@"\nInitial status: %d", self.userInfo.current_session.status]];
-                    NSLog(@"LOG?: %@",self.userInfo.log);
-                    
-                    if (self.userInfo.current_session.status != UNASSIGNED && self.userInfo.current_session.status != NOT_PARKED && !self.userInfo.current_session.isSet){
-                        self.userInfo.log = [self.userInfo.log stringByAppendingString:[NSString stringWithFormat:@"\nERROR. Status is: %d, but the car is not parked\n", self.userInfo.current_session.status]];
-                    }
-                    self.userInfo.current_session.last_significant_location = CLLocationCoordinate2DMake([[[NSUserDefaults standardUserDefaults]valueForKey:@"last_lat"]doubleValue], [[[NSUserDefaults standardUserDefaults]valueForKey:@"last_lng"]doubleValue]);
-                    self.userInfo.log = [self.userInfo.log stringByAppendingString:[NSString stringWithFormat:@"\nLast significant location: %f,%f", self.userInfo.current_session.last_significant_location.latitude,self.userInfo.current_session.last_significant_location.longitude]];
-                    
-                    //This is only called if the user closed the app while driving. If he's moved not too far away, and re-opened the app within a few minutes, we assume that he is parking at the point of opening the app. Otherwise, we discard the fact that the user has been driving and start anew.
-                    if (self.userInfo.current_session.status == NOT_PARKED && [[NSDate date]timeIntervalSince1970] - [[[NSUserDefaults standardUserDefaults]valueForKey:@"last_signal_timestamp"]longValue] > 30){
-                        self.userInfo.current_session.status = UNASSIGNED;
-                        [[NSUserDefaults standardUserDefaults] setValue:[NSNumber numberWithInt:UNASSIGNED] forKey:@"status"];
-                        self.userInfo.log = [self.userInfo.log stringByAppendingString:[NSString stringWithFormat:@"\nModified status: %d", self.userInfo.current_session.status]];
-                    };
-                    
-                    [self start];
-                    
-                    if (timer != nil){
-                        [timer invalidate];
-                        timer = nil;
-                    }
-                    timer = [NSTimer scheduledTimerWithTimeInterval:5 target:self selector:@selector(fetchParkingLocations) userInfo:nil repeats:YES];
-                    NSLog(@"Motion manager. Detect if the user is walking or running");
-                    
-                    [self.motionManager startAccelerometerUpdatesToQueue:[[NSOperationQueue alloc] init]
-                                                             withHandler:^(CMAccelerometerData *accelerometerData, NSError *error){
-                                                                 [Algorithms detectShaking:accelerometerData.acceleration userInfo:self.userInfo];
-                                                             }];
-                    //Do something
+                    [self loginSuccess:responseDict];
                 }else{
                     LoginController* lc = [[LoginController alloc]init];
                     if (!lc.isBeingPresented){
@@ -378,6 +389,11 @@
 }
 -(void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray<CLLocation *> *)locations{
     NSLog(@"horizontalAccuracy: %f speed: %f",[locations[locations.count - 1] horizontalAccuracy],[locations[locations.count - 1] speed]);
+    
+    if (mapShouldFollowUser && CLLocationCoordinate2DIsValid(locations[locations.count - 1].coordinate)){
+        [self focusMapOnUserLocation];
+    }
+    
     if ([locations[locations.count - 1] horizontalAccuracy] > 60){
         badSignalCount++;
         if (badSignalCount == 30){
@@ -391,10 +407,6 @@
     
     NSLog(@"status: %d",status);
    
-    if (mapShouldFollowUser && locations[locations.count - 1].coordinate.latitude != 0){
-        [self focusMapOnUserLocation];
-    }
-    
     if (carLocation.latitude != self.userInfo.current_session.parking_location.latitude
         && carLocation.longitude != self.userInfo.current_session.parking_location.longitude){
         mapShouldFollowUser = NO;
@@ -672,8 +684,9 @@
         NSLog(@"WILL ASK A QUESTION");
         [Communicator postNotification:[(MapAnnotation*)view.annotation driver_id] message:@"Other users in the area would like to know when you'd be parking out. Please help other users by updating your intentions!" completion:^(BOOL success, BOOL message_exists, NSString *message) {
             [mapView deselectAnnotation:view.annotation animated:YES];
-             [self showMessage];
+
         }];
+        [self showMessage];
     }
 }
 
@@ -682,12 +695,14 @@
     [self focusMapOnUserLocation];
 }
 -(void)focusMapOnUserLocation{
-    MKCoordinateRegion region;
-    region.center.latitude     = map.userLocation.coordinate.latitude;
-    region.center.longitude    = map.userLocation.coordinate.longitude;
-    region.span.latitudeDelta  = .01;
-    region.span.longitudeDelta = .05;
-    [map setRegion:region animated:YES];
+    if (CLLocationCoordinate2DIsValid(map.userLocation.coordinate)){
+        MKCoordinateRegion region;
+        region.center.latitude     = map.userLocation.coordinate.latitude;
+        region.center.longitude    = map.userLocation.coordinate.longitude;
+        region.span.latitudeDelta  = .01;
+        region.span.longitudeDelta = .05;
+        [map setRegion:region animated:YES];
+    }
 
 }
 

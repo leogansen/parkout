@@ -117,7 +117,11 @@
 
                     if ([self.delegate respondsToSelector:@selector(loginControllerDidLogIn:)]){
                         [self.delegate loginControllerDidLogIn:self.userInfo];
+                        [self.delegate loginControllerDidLogInWithDictionary:responseDict];
+
                     }
+                  
+                    
                     [self dismissViewControllerAnimated:YES completion:^{
                        
                     }];
