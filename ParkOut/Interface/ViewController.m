@@ -287,7 +287,8 @@
                     self.userInfo = [[UserInfo alloc]initWithDictionary:[responseDict objectForKey:@"userInfo"]];
                     //Developer
                     d = [[DeveloperController alloc]initWithUserInfo:self.userInfo];
-
+                   
+                    
                     self.userInfo.log = [self.userInfo.log stringByAppendingString:[NSString stringWithFormat:@"Logged in: %f",[[NSDate date] timeIntervalSince1970]]];
                     
                     self.userInfo.loggedIn = YES;
@@ -671,6 +672,7 @@
         NSLog(@"WILL ASK A QUESTION");
         [Communicator postNotification:[(MapAnnotation*)view.annotation driver_id] message:@"Other users in the area would like to know when you'd be parking out. Please help other users by updating your intentions!" completion:^(BOOL success, BOOL message_exists, NSString *message) {
             [mapView deselectAnnotation:view.annotation animated:YES];
+             [self showMessage];
         }];
     }
 }
@@ -870,9 +872,31 @@
 
 }
 
-//-(void)showMessage{
-//    UIView* messageView = [[UIView alloc]initWithFrame:CGRectMake(20, 20, self.view.frame.size.width - 40, 70)];
-//    UILabel* 
-//}
+-(void)showMessage{
+    UIView* messageView = [[UIView alloc]initWithFrame:CGRectMake(20, 20, self.view.frame.size.width - 40, 70)];
+    UILabel* text = [[UILabel alloc]initWithFrame:CGRectMake(10, 0, messageView.frame.size.width - 20, messageView.frame.size.height)];
+    text.font = [UIFont fontWithName:@"Avenir-Bold" size:18];//MyriadPro Cond
+    text.text = @"Driver has been notified!";
+    text.textColor = [UIColor whiteColor];
+    messageView.backgroundColor = [Color appColorMedium2];
+    text.textAlignment = NSTextAlignmentCenter;
+    messageView.layer.masksToBounds = YES;
+    messageView.layer.cornerRadius = 5.f;
+    [messageView addSubview:text];
+    [self.view addSubview:messageView];
+    
+    [self performSelector:@selector(removeView:) withObject:messageView afterDelay:3];
+}
+-(void)removeView:(UIView*)view{
+    [UIView animateWithDuration:.25
+                     animations:^{
+                         //Animate
+                         view.alpha = 0;
+                     } completion:^(BOOL finished) {
+                         [view removeFromSuperview];
 
+                     }];
+    
+
+}
 @end
