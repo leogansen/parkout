@@ -206,7 +206,7 @@
                     parkingAnnotation.title = parkingPlace.name;
                     parkingAnnotation.image = [Utils drawCircle:session.distance_from_car status:session.status];
                     parkingAnnotation.description = parkingPlace.description;
-                    parkingAnnotation.driver_id = session.user_id;
+                    parkingAnnotation.user_id = parkingAnnotation.driver_id = session.user_id;
                     parkingAnnotation.tag = pinTag;
                     parkingAnnotation.status = session.status;
                     parkingAnnotation.departing_in = session.departing_in;
@@ -869,5 +869,10 @@
     [alert addAction:cancelButton];
 
 }
+
+//-(void)showMessage{
+//    UIView* messageView = [[UIView alloc]initWithFrame:CGRectMake(20, 20, self.view.frame.size.width - 40, 70)];
+//    UILabel* 
+//}
 
 @end
