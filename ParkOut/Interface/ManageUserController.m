@@ -386,9 +386,10 @@
 -(BOOL)textFieldShouldBeginEditing:(UITextField *)textField{
     if (textField.tag == 10){
         if (customPicker.hidden){
-            [scroll scrollRectToVisible:CGRectMake(0, textField.frame.origin.y, textField.frame.size.width, textField.frame.size.height) animated:YES];
+            [scroll setContentOffset:CGPointMake(0, 100) animated:YES];
+//            [scroll scrollRectToVisible:CGRectMake(0, 670, textField.frame.size.width, textField.frame.size.height) animated:YES];
             customPicker.hidden = NO;
-            NSLog(@"Showing picker");
+            NSLog(@"Showing picker: %f",scroll.contentSize.height);
         }else{
             customPicker.hidden = YES;
         }
