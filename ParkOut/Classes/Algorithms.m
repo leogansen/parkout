@@ -54,7 +54,7 @@ static NSString* condition;
         //analyze recent changes in speed.
         if ((int)user.current_session.user_locations.count > 15 * FACTOR && [self speedStaysWalking:user.current_session.user_locations pings: 15 * FACTOR] && user.current_session.status == NOT_PARKED) {
             
-            user.current_session.parking_location = [user.current_session.user_locations[0] coordinate];
+            user.current_session.parking_location = [user.current_session.user_locations[[self findLowestSpeed:user.current_session.user_locations]] coordinate];//or 7 * FACTOR - half way
             user.current_session.status = PARKING;
             user.log = [user.log stringByAppendingString:[NSString stringWithFormat:@"1. setting status to PARKING"]];
 
