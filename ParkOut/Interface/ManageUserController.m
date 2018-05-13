@@ -231,20 +231,9 @@
 }
 
 -(void)customPickerViewDidSelectRow:(NSInteger)row{
-    if (row == 0){
-        vehicleMake.text = @"";
-    }else{
-        vehicleMake.text = self.vehicleMakes[row];
-    }
+    
 }
 
--(void)pickerView:(UIPickerView *)pickerView didSelectRow:(NSInteger)row inComponent:(NSInteger)component{
-    if (row == 0){
-        vehicleMake.text = @"";
-    }else{
-        vehicleMake.text = self.vehicleMakes[row];
-    }
-}
 
 
 -(void)dismissThisController{
@@ -380,7 +369,12 @@
     
 }
 
--(void)customPickerShouldClose{
+-(void)customPickerShouldCloseWithRow:(NSInteger)row{
+    if (row == 0){
+        vehicleMake.text = @"";
+    }else{
+        vehicleMake.text = self.vehicleMakes[row];
+    }
     [self hidePicker];
 }
 -(BOOL)textFieldShouldBeginEditing:(UITextField *)textField{
@@ -389,6 +383,7 @@
             [scroll setContentOffset:CGPointMake(0, 100) animated:YES];
 //            [scroll scrollRectToVisible:CGRectMake(0, 670, textField.frame.size.width, textField.frame.size.height) animated:YES];
             customPicker.hidden = NO;
+            [customPicker scrollToItem:vehicleMake.text];
             NSLog(@"Showing picker: %f",scroll.contentSize.height);
         }else{
             customPicker.hidden = YES;

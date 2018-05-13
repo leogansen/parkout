@@ -12,16 +12,19 @@
 @protocol CustomPickerViewDelegate <NSObject>
 
 -(void)customPickerViewDidSelectRow:(NSInteger)row;
--(void)customPickerShouldClose;
+-(void)customPickerShouldCloseWithRow:(NSInteger)row;
 
 @end
 
-@interface CustomPickerView : UIView<UIPickerViewDelegate>
+@interface CustomPickerView : UIView<UIPickerViewDelegate>{
+    NSInteger row;
+}
 
 @property (retain, nonatomic) IBOutlet UIPickerView *picker;
 @property (strong, nonatomic) NSArray* itemsArray;
 @property (assign, nonatomic) id <CustomPickerViewDelegate> delegate;
 
 -(id)initWithArray:(NSArray*)array frame:(CGRect)frame;
+-(void)scrollToItem:(NSString*)item;
 
 @end

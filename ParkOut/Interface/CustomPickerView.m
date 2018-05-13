@@ -34,12 +34,20 @@
     }
     return self;
 }
--(void)hidePicker{
-    if ([self.delegate respondsToSelector:@selector(customPickerShouldClose)]){
-        [self.delegate customPickerShouldClose];
+-(void)scrollToItem:(NSString*)item{
+    for (int i = 0; i < itemsArray.count; i++){
+        if ([item isEqualToString:itemsArray[i]]){
+            [self.picker selectRow:i inComponent:0 animated:NO];
+        }
     }
 }
--(void)pickerView:(UIPickerView *)pickerView didSelectRow:(NSInteger)row inComponent:(NSInteger)component{
+-(void)hidePicker{
+    if ([self.delegate respondsToSelector:@selector(customPickerShouldCloseWithRow:)]){
+        [self.delegate customPickerShouldCloseWithRow:row];
+    }
+}
+-(void)pickerView:(UIPickerView *)pickerView didSelectRow:(NSInteger)_row inComponent:(NSInteger)component{
+    row = _row;
     if ([self.delegate respondsToSelector:@selector(customPickerViewDidSelectRow:)]){
         [self.delegate customPickerViewDidSelectRow:row];
     }
