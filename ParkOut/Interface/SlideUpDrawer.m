@@ -111,7 +111,7 @@
             view.frame = CGRectMake(0, originY, self.frame.size.width, viewHeight);
         }
         CGPoint p = [self convertPoint:view.frame.origin toView:self.superview];
-        listViewButton.frame =  CGRectMake(listViewButton.frame.origin.x, p.y - 50, 40, 40);
+        listViewButton.frame =  CGRectMake(listViewButton.frame.origin.x, p.y - 57, listViewButton.frame.size.width, listViewButton.frame.size.height);
         NSLog(@"Gesture changed: %f",originY);
         
     }else if (gesture.state == UIGestureRecognizerStateEnded){
@@ -125,7 +125,7 @@
             [self slideBack];
         }
         CGPoint p = [self convertPoint:view.frame.origin toView:self.superview];
-        listViewButton.frame =  CGRectMake(listViewButton.frame.origin.x, p.y - 50, 40, 40);
+        listViewButton.frame =  CGRectMake(listViewButton.frame.origin.x, p.y - 57, listViewButton.frame.size.width, listViewButton.frame.size.height);
         
     }
 }
@@ -159,7 +159,7 @@
                          self.frame = CGRectMake(0, self.frame.size.height - 60, self.frame.size.width, self.frame.size.height);
                          view.frame = CGRectMake(0, 0, self.frame.size.width, viewHeight);
                          CGPoint p = [self convertPoint:view.frame.origin toView:self.superview];
-                         listViewButton.frame =  CGRectMake(listViewButton.frame.origin.x, p.y - 50, 40, 40);
+                         listViewButton.frame =  CGRectMake(listViewButton.frame.origin.x, p.y - 57, listViewButton.frame.size.width, listViewButton.frame.size.height);
                          
                      } completion:^(BOOL finished) {
                          //Finished
@@ -180,7 +180,7 @@
                          self.frame = CGRectMake(0, self.superview.frame.size.height - viewHeight, self.frame.size.width, self.frame.size.height);
                          view.frame = CGRectMake(0, 0, self.frame.size.width, viewHeight);
                          CGPoint p = [self convertPoint:view.frame.origin toView:self.superview];
-                         listViewButton.frame =  CGRectMake(listViewButton.frame.origin.x, p.y - 50, 40, 40);
+                         listViewButton.frame = CGRectMake(listViewButton.frame.origin.x, p.y - 57, listViewButton.frame.size.width, listViewButton.frame.size.height);
                      } completion:^(BOOL finished) {
                          //Finished
                          isOpen = YES;

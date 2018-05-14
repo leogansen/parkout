@@ -109,5 +109,12 @@
     
     return result;
 }
-
++ (void)addToLog:(UserInfo*)user message:(NSString*)message{
+    if (user.log.count > 100){
+        [user.log removeObjectAtIndex:0];
+    }
+    NSLog(@"MESSAGE: %@",message);
+    
+    [user.log addObject:message];
+}
 @end

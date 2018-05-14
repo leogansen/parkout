@@ -37,6 +37,7 @@
     BOOL mapShouldFollowUser;
     
     CLLocation* lastRegionLocation;
+    UIView* setParkingView;
     
 }
 //@property (nonatomic, strong) UISearchBar* searchBar;

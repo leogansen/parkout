@@ -110,8 +110,7 @@
     }else if (userInfo.current_session.status == 0){
         statusValue.text = @"UNASSIGNED";
     }
-    tv.text = userInfo.log;
-        NSLog(@"LOG: %@",userInfo.log);
+    tv.text = [NSString stringWithFormat:@"%@",userInfo.log];
     
 }
 -(void)dismissThisController{

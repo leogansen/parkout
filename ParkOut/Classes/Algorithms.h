@@ -11,6 +11,7 @@
 #import "UserInfo.h"
 #import "Constants.h"
 #import <CoreMotion/CoreMotion.h>
+#import "Utils.h"
 
 @interface Algorithms : NSObject
 
@@ -18,5 +19,6 @@
 +(NSString*)getCondition;
 +(double)distanceFrom:(CLLocationCoordinate2D)coord1 to:(CLLocationCoordinate2D)coord2;
 + (void)detectShaking:(CMAcceleration)_acceleration userInfo:(UserInfo*)user;
+
 
 @end

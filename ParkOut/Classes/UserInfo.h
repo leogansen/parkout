@@ -28,7 +28,7 @@
 @property (strong, nonatomic) ParkingSession* current_session;
 @property (readwrite) CLLocationCoordinate2D parking_location;
 
-@property (copy, nonatomic) NSString* log;
+@property (strong, atomic) NSMutableArray* log;
 
 -(id)init;
 -(id)initWithDictionary:(NSDictionary*)dict;

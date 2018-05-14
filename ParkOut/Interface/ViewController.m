@@ -28,6 +28,13 @@
         pinTag = 1;
         currentAnnotations = [NSMutableDictionary dictionary];
         self.motionManager = [[CMMotionManager alloc] init];
+        
+        
+        [[NSNotificationCenter defaultCenter]
+         addObserver:self
+         selector:@selector(statusChanged:)
+         name:@"status_changed"
+         object:nil];
     }
     return self;
 }
@@ -92,7 +99,7 @@
     [self.view addGestureRecognizer:panGesture];
     
     UIButton* locateMe = [UIButton buttonWithType:UIButtonTypeCustom];
-    locateMe.frame = CGRectMake(self.view.frame.size.width - 50, self.view.frame.size.height - 110, 40, 40);
+    locateMe.frame = CGRectMake(self.view.frame.size.width - 53, self.view.frame.size.height - 117, 50, 50);
     [locateMe setImage:[UIImage imageNamed:@"locate@3x"] forState:UIControlStateNormal];
     [locateMe addTarget:self action:@selector(locate) forControlEvents:UIControlEventTouchDown];
     [self.view addSubview:locateMe];
@@ -105,6 +112,23 @@
     [slider setButton:locateMe];
     
     [self addMyParkingLocation];
+    
+    
+    setParkingView = [[UIView alloc]initWithFrame:CGRectMake(20, 20, self.view.frame.size.width - 40, 70)];
+    UIButton* button = [UIButton buttonWithType:UIButtonTypeCustom];
+    button.frame = CGRectMake(10, 0, setParkingView.frame.size.width - 20, setParkingView.frame.size.height);
+    button.titleLabel.font = [UIFont fontWithName:@"Avenir-Bold" size:18];//MyriadPro Cond
+    button.titleLabel.numberOfLines = 3;
+    button.titleLabel.textAlignment = NSTextAlignmentCenter;
+    [button setTitle:@"Tap here to set your current location as parking location" forState:UIControlStateNormal];
+    [button setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [button addTarget:self action:@selector(parkingManuallySet:) forControlEvents:UIControlEventTouchDown];
+    setParkingView.backgroundColor = [Color appColorMedium2];
+    setParkingView.layer.masksToBounds = YES;
+    setParkingView.layer.cornerRadius = 5.f;
+    [setParkingView addSubview:button];
+    setParkingView.hidden = YES;
+    [self.view addSubview:setParkingView];
     
 
 }
@@ -278,7 +302,7 @@
     d = [[DeveloperController alloc]initWithUserInfo:self.userInfo];
     
     
-    self.userInfo.log = [self.userInfo.log stringByAppendingString:[NSString stringWithFormat:@"Logged in: %f",[[NSDate date] timeIntervalSince1970]]];
+    [Utils addToLog:self.userInfo message:[NSString stringWithFormat:@"Logged in: %f",[[NSDate date] timeIntervalSince1970]]];
     
     self.userInfo.loggedIn = YES;
     
@@ -290,20 +314,20 @@
     
     NSLog(@"CURRENT STATUS AT LOG IN: %d",self.userInfo.current_session.status);
     self.userInfo.current_session.parking_location = prevParkingLoc;
-    self.userInfo.log = [self.userInfo.log stringByAppendingString:[NSString stringWithFormat:@"\nParking location: %f,%f", prevParkingLoc.latitude,prevParkingLoc.longitude]];
+    [Utils addToLog:self.userInfo message:[NSString stringWithFormat:@"\nParking location: %f,%f", prevParkingLoc.latitude,prevParkingLoc.longitude]];
     
     self.userInfo.current_session.status = [[[NSUserDefaults standardUserDefaults] valueForKey:@"status"]intValue];
     
     
-    self.userInfo.log = [self.userInfo.log stringByAppendingString:[NSString stringWithFormat:@"\nInitial status: %d", self.userInfo.current_session.status]];
+    [Utils addToLog:self.userInfo message:[NSString stringWithFormat:@"\nInitial status: %d", self.userInfo.current_session.status]];
     NSLog(@"LOG?: %@",self.userInfo.log);
     
     if (self.userInfo.current_session.status != UNASSIGNED && self.userInfo.current_session.status != NOT_PARKED && !self.userInfo.current_session.isSet){
-        self.userInfo.log = [self.userInfo.log stringByAppendingString:[NSString stringWithFormat:@"\nERROR. Status is: %d, but the car is not parked. Setting back to UNASSIGNED\n", self.userInfo.current_session.status]];
+        [Utils addToLog:self.userInfo message:[NSString stringWithFormat:@"\nERROR. Status is: %d, but the car is not parked. Setting back to UNASSIGNED\n", self.userInfo.current_session.status]];
         self.userInfo.current_session.status = UNASSIGNED;
     }
     self.userInfo.current_session.last_significant_location = CLLocationCoordinate2DMake([[[NSUserDefaults standardUserDefaults]valueForKey:@"last_lat"]doubleValue], [[[NSUserDefaults standardUserDefaults]valueForKey:@"last_lng"]doubleValue]);
-    self.userInfo.log = [self.userInfo.log stringByAppendingString:[NSString stringWithFormat:@"\nLast significant location: %f,%f", self.userInfo.current_session.last_significant_location.latitude,self.userInfo.current_session.last_significant_location.longitude]];
+    [Utils addToLog:self.userInfo message:[NSString stringWithFormat:@"\nLast significant location: %f,%f", self.userInfo.current_session.last_significant_location.latitude,self.userInfo.current_session.last_significant_location.longitude]];
     
     //This is only called if the user closed the app while driving. If he's moved not too far away, and re-opened the app within a few minutes, we assume that he is parking at the point of opening the app. Otherwise, we discard the fact that the user has been driving and start anew.
     if (self.userInfo.current_session.status == NOT_PARKED && [[NSDate date]timeIntervalSince1970] - [[[NSUserDefaults standardUserDefaults]valueForKey:@"last_signal_timestamp"]longValue] > 30){
@@ -312,7 +336,7 @@
         self.userInfo.parking_location = CLLocationCoordinate2DMake(0, 0);
         [[NSUserDefaults standardUserDefaults]setObject:[NSNumber numberWithDouble:self.userInfo.parking_location.latitude] forKey:@"parking_location_lat"];
         [[NSUserDefaults standardUserDefaults]setObject:[NSNumber numberWithDouble:self.userInfo.parking_location.longitude] forKey:@"parking_location_lng"];
-        self.userInfo.log = [self.userInfo.log stringByAppendingString:[NSString stringWithFormat:@"\nModified status: %d", self.userInfo.current_session.status]];
+        [Utils addToLog:self.userInfo message:[NSString stringWithFormat:@"\nModified status: %d", self.userInfo.current_session.status]];
     };
     
     [self start];
@@ -348,7 +372,8 @@
         if ([[NSUserDefaults standardUserDefaults]objectForKey:@"username"] != nil && [[NSUserDefaults standardUserDefaults]objectForKey:@"password"] != nil){
             [Communicator logInWithUsername:[[NSUserDefaults standardUserDefaults]objectForKey:@"username"]  password:[[NSUserDefaults standardUserDefaults]objectForKey:@"password"]  completion:^(NSDictionary* responseDict, BOOL success) {
                 if (success){
-                    [self loginSuccess:responseDict];
+                    [self loginSuccess:responseDict];                   
+
                 }else{
                     LoginController* lc = [[LoginController alloc]init];
                     if (!lc.isBeingPresented){
@@ -396,18 +421,6 @@
         [self focusMapOnUserLocation];
     }
     
-    if ([locations[locations.count - 1] horizontalAccuracy] > 60){
-        badSignalCount++;
-        if (badSignalCount == 30){
-            self.userInfo.current_session.status = NOT_MOVING;
-            self.userInfo.log = [self.userInfo.log stringByAppendingString:@"Poor signal - setting status to NOT_MOVING"];
-        }
-        return;
-    }
-    badSignalCount = 0;
-    int status = [Algorithms determineStatus:locations[locations.count - 1] userInfo:self.userInfo];
-    
-    NSLog(@"status: %d",status);
    
     if (carLocation.latitude != self.userInfo.current_session.parking_location.latitude
         && carLocation.longitude != self.userInfo.current_session.parking_location.longitude){
@@ -426,6 +439,20 @@
     
     carLocation = self.userInfo.current_session.parking_location;
 
+    if ([locations[locations.count - 1] horizontalAccuracy] > 60){
+        badSignalCount++;
+        if (badSignalCount == 30){
+            self.userInfo.current_session.status = NOT_MOVING;
+            [Utils addToLog:self.userInfo message:@"Poor signal - setting status to NOT_MOVING"];
+        }
+        return;
+    }
+    badSignalCount = 0;
+    int status = [Algorithms determineStatus:locations[locations.count - 1] userInfo:self.userInfo];
+    
+    NSLog(@"status: %d",status);
+    
+    
     ParkingSession* currentSession = [[ParkingSession alloc]init];
     currentSession.parking_location = carLocation;
     currentSession.speed = locations[locations.count - 1].speed;
@@ -920,6 +947,34 @@
     
     [self performSelector:@selector(removeView:) withObject:messageView afterDelay:3];
 }
+
+-(void)statusChanged:(NSNotification*)statusNotification{
+    NSDictionary* dict = [statusNotification userInfo];
+    int status = [[dict objectForKey:@"status"] intValue];
+    if (status == PARKING){
+        setParkingView.hidden = NO;
+        [self performSelector:@selector(hideView:) withObject:setParkingView afterDelay:60];
+    }else{
+        setParkingView.hidden = YES;
+    }
+}
+-(void)parkingManuallySet:(UIControl*)sender{
+    NSLog(@"parkingManuallySet");
+    [sender.superview removeFromSuperview];
+    if (CLLocationCoordinate2DIsValid(self.locationManager.location.coordinate)){
+        self.userInfo.parking_location = self.userInfo.current_session.parking_location = self.locationManager.location.coordinate;
+        mapShouldFollowUser = NO;
+        [map removeAnnotations:map.annotations];
+        [[NSUserDefaults standardUserDefaults]setObject:[NSNumber numberWithDouble:self.userInfo.current_session.parking_location.latitude] forKey:@"parking_location_lat"];
+        [[NSUserDefaults standardUserDefaults]setObject:[NSNumber numberWithDouble:self.userInfo.current_session.parking_location.longitude] forKey:@"parking_location_lng"];
+        [self addMyParkingLocation];
+        [self checkIfLocationIsValid:self.userInfo.current_session.parking_location];
+        
+        carLocation = self.userInfo.current_session.parking_location;
+        
+    }
+}
+
 -(void)removeView:(UIView*)view{
     [UIView animateWithDuration:.25
                      animations:^{
@@ -931,5 +986,15 @@
                      }];
     
 
+}
+-(void)hideView:(UIView*)view{
+    [UIView animateWithDuration:.25
+                     animations:^{
+                         //Animate
+                         view.alpha = 0;
+                     } completion:^(BOOL finished) {
+                         
+                     }];
+    
 }
 @end

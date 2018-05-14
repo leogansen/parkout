@@ -27,7 +27,7 @@ static NSString* condition;
         && user.current_session.isSet){
         user.current_session.status = UNASSIGNED;
         
-        user.log = [user.log stringByAppendingString:[NSString stringWithFormat:@"Top. setting status to UNASSIGNED"]];
+        [Utils addToLog:user message:[NSString stringWithFormat:@"Top. setting status to UNASSIGNED"]];
         
         user.current_session.parking_location = CLLocationCoordinate2DMake(0, 0);
         [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"parking_location_lat"];
@@ -37,7 +37,7 @@ static NSString* condition;
     if ([location speed] > DRIVING_SPEED || ([location speed] > RUNNING_SPEED && !user.current_session.on_feet)) {
         if ([self speedStaysDriving:user.current_session.user_locations pings: 2 * FACTOR]){
             user.current_session.status = NOT_PARKED;
-            user.log = [user.log stringByAppendingString:[NSString stringWithFormat:@"Top. setting status to NOT_PARKED. Speed: %f",location.speed]];
+            [Utils addToLog:user message:[NSString stringWithFormat:@"Top. setting status to NOT_PARKED. Speed: %f",location.speed]];
 
             [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"parking_location_lat"];
             [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"parking_location_lng"];
@@ -56,7 +56,7 @@ static NSString* condition;
             
             user.current_session.parking_location = [user.current_session.user_locations[[self findLowestSpeed:user.current_session.user_locations]] coordinate];//or 7 * FACTOR - half way
             user.current_session.status = PARKING;
-            user.log = [user.log stringByAppendingString:[NSString stringWithFormat:@"1. setting status to PARKING"]];
+            [Utils addToLog:user message:[NSString stringWithFormat:@"1. setting status to PARKING"]];
 
             NSLog(@"setting status to parking");
             int index = [self findLowestSpeed:user.current_session.user_locations];
@@ -82,7 +82,7 @@ static NSString* condition;
                     user.current_session.parking_location = [user.current_session.user_locations[0] coordinate];
                     NSLog(@"setting status to parking");
                     user.current_session.status = PARKING;
-                    user.log = [user.log stringByAppendingString:[NSString stringWithFormat:@"2. setting status to PARKING"]];
+                    [Utils addToLog:user message:[NSString stringWithFormat:@"2. setting status to PARKING"]];
 
                     user.current_session.last_significant_location = location.coordinate;
                 }else if ((user.current_session.status == PARKED_NOT_IN_RADIUS || user.current_session.status == PARKED_MOVING_AWAY
@@ -91,22 +91,22 @@ static NSString* condition;
                         if (user.current_session.status == PARKED_COMING_BACK){
                             if ([self distanceFrom:location.coordinate to:user.current_session.parking_location] > DISTANCE_DELTA){
                                 user.current_session.status = NOT_MOVING;
-                                user.log = [user.log stringByAppendingString:[NSString stringWithFormat:@"1. setting status to NOT_MOVING"]];
+                                [Utils addToLog:user message:[NSString stringWithFormat:@"1. setting status to NOT_MOVING"]];
 
                             }
                         }else{
                             user.current_session.status = NOT_MOVING;
-                            user.log = [user.log stringByAppendingString:[NSString stringWithFormat:@"2. setting status to NOT_MOVING"]];
+                            [Utils addToLog:user message:[NSString stringWithFormat:@"2. setting status to NOT_MOVING"]];
 
                             
                         }
                     }else if ([self distanceFrom:[location coordinate] to:user.current_session.parking_location] < 0.00003){
                         user.current_session.status = UNPARKING;
-                        user.log = [user.log stringByAppendingString:[NSString stringWithFormat:@"1. setting status to UNPARKING"]];
+                        [Utils addToLog:user message:[NSString stringWithFormat:@"1. setting status to UNPARKING"]];
 
                     }else if ([self distanceFrom:location.coordinate to:user.current_session.parking_location] > DISTANCE_DELTA){
                         user.current_session.status = NOT_MOVING;
-                        user.log = [user.log stringByAppendingString:@"3. Setting status to NOT_MOVING: distance to car > DISTANCE_DELTA"];
+                        [Utils addToLog:user message:@"3. Setting status to NOT_MOVING: distance to car > DISTANCE_DELTA"];
                     }
                     user.current_session.last_significant_location = location.coordinate;
                 }
@@ -127,11 +127,11 @@ static NSString* condition;
                                  [location coordinate] user:user]) {
                                 
                                 user.current_session.status = PARKED_MOVING_AWAY;
-                                user.log = [user.log stringByAppendingString:[NSString stringWithFormat:@"1. setting status to PARKED_MOVING_AWAY"]];
+                                [Utils addToLog:user message:[NSString stringWithFormat:@"1. setting status to PARKED_MOVING_AWAY"]];
 
                             }else {
                                 user.current_session.status = PARKED_NOT_IN_RADIUS;
-                                user.log = [user.log stringByAppendingString:[NSString stringWithFormat:@"1. setting status to PARKED_NOT_IN_RADIUS"]];
+                                [Utils addToLog:user message:[NSString stringWithFormat:@"1. setting status to PARKED_NOT_IN_RADIUS"]];
 
                             }
                             user.current_session.last_significant_location = location.coordinate;
@@ -143,7 +143,7 @@ static NSString* condition;
                     if ([self distanceFrom:location.coordinate to:user.current_session.parking_location] < 0.00003){
                         
                         user.current_session.status = UNPARKING;
-                        user.log = [user.log stringByAppendingString:[NSString stringWithFormat:@"2. setting status to UNPARKING"]];
+                        [Utils addToLog:user message:[NSString stringWithFormat:@"2. setting status to UNPARKING"]];
 
                         user.current_session.last_significant_location = location.coordinate;
                     }
@@ -163,11 +163,11 @@ static NSString* condition;
                             if ([self isWithinRadius:user.current_session.parking_location userLocation:
                                  [location coordinate]user:user]) {
                                 user.current_session.status = PARKED_COMING_BACK;
-                                user.log = [user.log stringByAppendingString:[NSString stringWithFormat:@"1. setting status to PARKED_COMING_BACK. Distance to last significant location: %f",[self distanceFrom:[location coordinate] to:user.current_session.last_significant_location]]];
+                                [Utils addToLog:user message:[NSString stringWithFormat:@"1. setting status to PARKED_COMING_BACK. Distance to last significant location: %f",[self distanceFrom:[location coordinate] to:user.current_session.last_significant_location]]];
 
                             }else{
                                 user.current_session.status = PARKED_NOT_IN_RADIUS;
-                                user.log = [user.log stringByAppendingString:[NSString stringWithFormat:@"2. setting status to PARKED_NOT_IN_RADIUS"]];
+                                [Utils addToLog:user message:[NSString stringWithFormat:@"2. setting status to PARKED_NOT_IN_RADIUS"]];
 
                             }
                         }else{
@@ -175,11 +175,11 @@ static NSString* condition;
                             if ([self isWithinRadius:user.current_session.parking_location userLocation:
                                  [location coordinate]user:user]) {
                                 user.current_session.status = PARKED_MOVING_AWAY;
-                                user.log = [user.log stringByAppendingString:[NSString stringWithFormat:@"2. setting status to PARKED_MOVING_AWAY"]];
+                                [Utils addToLog:user message:[NSString stringWithFormat:@"2. setting status to PARKED_MOVING_AWAY"]];
 
                             }else{
                                 user.current_session.status = PARKED_NOT_IN_RADIUS;
-                                user.log = [user.log stringByAppendingString:[NSString stringWithFormat:@"3. setting status to PARKED_NOT_IN_RADIUS"]];
+                                [Utils addToLog:user message:[NSString stringWithFormat:@"3. setting status to PARKED_NOT_IN_RADIUS"]];
 
                             }
                         }
@@ -189,14 +189,14 @@ static NSString* condition;
                     }else if (user.current_session.status == PARKED_COMING_BACK && ![self distanceIsDecreasing:user.current_session.user_locations reference:user.current_session.parking_location pings:5*FACTOR]){
                         if ([self distanceFrom:location.coordinate to:user.current_session.parking_location] > DISTANCE_DELTA*2){
                             user.current_session.status = NOT_MOVING;
-                            user.log = [user.log stringByAppendingString:[NSString stringWithFormat:@"4. setting status to NOT_MOVING"]];
+                            [Utils addToLog:user message:[NSString stringWithFormat:@"4. setting status to NOT_MOVING"]];
 
                             user.current_session.last_significant_location = location.coordinate;
                         }
                     }else if (user.current_session.status == PARKED_MOVING_AWAY && ![self distanceIsIncreasing:user.current_session.user_locations reference:user.current_session.parking_location pings:5*FACTOR]){
                         
                         user.current_session.status = NOT_MOVING;
-                        user.log = [user.log stringByAppendingString:[NSString stringWithFormat:@"5. setting status to NOT_MOVING"]];
+                        [Utils addToLog:user message:[NSString stringWithFormat:@"5. setting status to NOT_MOVING"]];
 
                         user.current_session.last_significant_location = location.coordinate;
                     }
@@ -214,7 +214,15 @@ static NSString* condition;
         if (user.current_session.status == NOT_PARKED){
             user.current_session.timestamp = ([[NSDate date] timeIntervalSince1970] * (long)1000);
         }
+         if (user.current_session.status == PARKING){
+             NSDictionary* dict = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:PARKING],@"status", nil];
+             [[NSNotificationCenter defaultCenter]postNotificationName:@"status_changed" object:nil userInfo:dict];
+         }
+        
+        [Utils addToLog:user message:[NSString stringWithFormat:@"Status changed. PrevStatus: %d, new status: %d",user.current_session.prevStatus,user.current_session.status]];
         user.current_session.prevStatus = user.current_session.status;
+        
+
     }else if (user.current_session.status == NOT_PARKED && ([[NSDate date] timeIntervalSince1970] * (long)1000) - user.current_session.timestamp < 30000 && user.current_session.distance_from_car < 50){
         user.current_session.parking_location = CLLocationCoordinate2DMake(0, 0);
         //we remove this from the system only after 30 seconds. For the user himself, it disappears from the defaults right away

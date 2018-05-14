@@ -16,7 +16,7 @@
     self = [super init];
     if (self){
         self.current_session = [[ParkingSession alloc]init];
-        self.log = @"";
+        self.log = [[NSMutableArray alloc]init];
         self.username = @"";
         self.password = @"";
         self.email_address = @"";
@@ -29,7 +29,6 @@
         self.middle_name = @"";
         self.suffix = @"";
         self.loggedIn = NO;
-        self.log = @"";
         self.vehicle_make = @"";
     }
     return self;
@@ -38,9 +37,9 @@
     self = [super init];
     if (self){
         self.current_session = [[ParkingSession alloc]initWithParkingSession:user.current_session];
-        self.log = user.log;
+        self.log = [user.log mutableCopy];
         if (self.log == nil){
-            self.log = @"";
+            self.log = [[NSMutableArray alloc]init];
         }
         self.username = user.username;
         self.password = user.password;
@@ -122,9 +121,8 @@
         
         self.current_session.user_id = self.user_id;
         
-        if (self.log == nil){
-            self.log = @"";
-        }
+        self.log = [[NSMutableArray alloc]init];
+
     }
     return self;
 }
