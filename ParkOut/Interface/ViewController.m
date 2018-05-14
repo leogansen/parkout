@@ -65,6 +65,15 @@
     [self.view addSubview:grayLabel];
     [self.view addSubview:search];
     
+    personImageView = [[UIImageView alloc]initWithFrame:CGRectMake(search.frame.origin.x + search.frame.size.width + 6, 25, 20, 27)];
+    personImageView.image = [UIImage imageNamed:@"person.png"];
+    [self.view addSubview:personImageView];
+    personCountLabel = [[UILabel alloc]initWithFrame:CGRectMake(personImageView.frame.origin.x + personImageView.frame.size.width + 5, personImageView.frame.origin.y, 40, personImageView.frame.size.height)];
+    personCountLabel.text = @"0";
+    personCountLabel.font = [UIFont fontWithName:@"Avenir" size:18];
+    personCountLabel.textColor = [Color appColorMedium2];
+    [self.view addSubview:personCountLabel];
+    
     UIButton* openMenuButton = [UIButton buttonWithType:UIButtonTypeCustom];
     openMenuButton.frame = CGRectMake(15, 27, 20, 20);
     [openMenuButton addTarget:self action:@selector(openMenu) forControlEvents:UIControlEventTouchDown];
@@ -130,6 +139,15 @@
     setParkingView.hidden = YES;
     [self.view addSubview:setParkingView];
     
+
+}
+-(void)adjustTopBarForUserCount:(int)count{
+    personCountLabel.text = [NSString stringWithFormat:@"%d",count];
+    [personCountLabel sizeToFit];
+    NSLog(@"personCountLabel.frame.size.width: %f",(float)personCountLabel.frame.size.width);
+    search.frame = CGRectMake(50, 23, self.view.frame.size.width - 50 - 23 - personImageView.frame.size.width - personCountLabel.frame.size.width, 30);
+    personImageView.frame = CGRectMake(search.frame.origin.x + search.frame.size.width + 6, 25, 20, 27);
+    personCountLabel.frame = CGRectMake(personImageView.frame.origin.x + personImageView.frame.size.width + 5, personImageView.frame.origin.y, personCountLabel.frame.size.width, personImageView.frame.size.height);
 
 }
 -(void)openMenu{
@@ -268,7 +286,7 @@
                     }
                 }
                 
-              
+                [self adjustTopBarForUserCount:(int)[[responseDict objectForKey:@"parking"] count]];
                 NSLog(@"map: %d",(int)map.annotations.count);
 
 
@@ -362,7 +380,7 @@
         [self.locationManager requestAlwaysAuthorization];
     }
     [self setUpView];
-
+//    [self adjustTopBarForUserCount:1000];
 }
 -(void)setUpView{
     NSLog(@"Logged in? %d",self.userInfo.loggedIn);
@@ -649,7 +667,12 @@
 - (MKAnnotationView *)mapView:(MKMapView *)_mapView viewForAnnotation:(id <MKAnnotation>)annotation {
     
     if ([annotation.title isEqualToString:@"My Location"]){
-        return nil;
+        MKAnnotationView* userLocation = [[MKAnnotationView alloc] initWithAnnotation:annotation reuseIdentifier:@"pinForRoute"];
+        userLocation.image = [UIImage imageNamed:@"user@3x.png"];
+        userLocation.frame = CGRectMake(0, 0, 50, 71);
+        [map addAnnotation:userLocation.annotation];
+        return userLocation;
+//        return nil;
     }
     NSLog(@"Adding hash: %lu",annotation.hash);
     NSLog(@"use id?: %@",[(MapAnnotation*)annotation user_id]);
@@ -685,6 +708,12 @@
                     UIButton *rightButton = [UIButton buttonWithType:UIButtonTypeDetailDisclosure];
                     rightButton.tag = 3;
                     rightButton.frame = CGRectMake(0, 0, 30, 30);
+                    pinViewNormal.rightCalloutAccessoryView = rightButton;
+                }else{
+                    UIButton *rightButton = [UIButton buttonWithType:UIButtonTypeCustom];
+                    rightButton.tag = 1;
+                    rightButton.frame = CGRectMake(0, 0, 30, 30);
+                    [rightButton setImage:[UIImage imageNamed:@"location.png"] forState:UIControlStateNormal];
                     pinViewNormal.rightCalloutAccessoryView = rightButton;
                 }
             }

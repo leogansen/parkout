@@ -365,7 +365,9 @@ static NSString* condition;
         
         // Add current acceleration to array
         NSValue *boxedAcceleration = [NSValue value:&_acceleration withObjCType:@encode(CMAcceleration)];
-        [shakeDataForOneSec addObject:boxedAcceleration];
+        if (boxedAcceleration != nil){
+            [shakeDataForOneSec addObject:boxedAcceleration];
+        }
     } else {
         // Now, when one second was elapsed, calculate shake count in this interval. If there will be at least one shake then
         // we'll determine it as shaked in all this one second interval.

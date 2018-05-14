@@ -38,7 +38,8 @@
     
     CLLocation* lastRegionLocation;
     UIView* setParkingView;
-    
+    UIImageView* personImageView;
+    UILabel* personCountLabel;
 }
 //@property (nonatomic, strong) UISearchBar* searchBar;
 @property (strong, nonatomic) UserInfo* userInfo;

@@ -144,7 +144,7 @@
 }
 
 -(void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler{
-    NSLog(@"didReceiveRemoteNotification");
+    NSLog(@"didReceiveRemoteNotification: %d",[[userInfo objectForKey:@"id"] intValue]);
     if ([[userInfo objectForKey:@"id"] intValue] == 1){
         [viewController updateIntentions];
     }
@@ -155,11 +155,21 @@
 -(void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions options))completionHandler{
     NSLog(@"User Info : %@",notification.request.content.userInfo);
     completionHandler(UNAuthorizationOptionSound | UNAuthorizationOptionAlert | UNAuthorizationOptionBadge);
+    NSLog(@"ID: %d",[[notification.request.content.userInfo objectForKey:@"id"] intValue]);
+    if ([[notification.request.content.userInfo objectForKey:@"id"] intValue] == 1){
+        NSLog(@"Will update intentions");
+        [viewController updateIntentions];
+    }
 }
 
 //Called to let your app know which action was selected by the user for a given notification.
 -(void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void(^)(void))completionHandler{
     NSLog(@"User Info : %@",response.notification.request.content.userInfo);
     completionHandler();
+    NSLog(@"ID: %d",[[response.notification.request.content.userInfo objectForKey:@"id"] intValue]);
+    if ([[response.notification.request.content.userInfo objectForKey:@"id"] intValue] == 1){
+        NSLog(@"Will update intentions");
+        [viewController updateIntentions];
+    }
 }
 @end
