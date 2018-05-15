@@ -7,7 +7,6 @@
 //
 
 #import "ViewController.h"
-
 @interface ViewController ()
 
 @end
@@ -19,6 +18,7 @@
 {
     if ((self = [super initWithNibName:nibNameOrNil bundle:bundleOrNil]))
     {
+        
         userInfo = [[UserInfo alloc]init];
         algo = [[Algorithms alloc]init];
         
@@ -182,19 +182,25 @@
     region.span.longitudeDelta = .05;
     [map setRegion:region animated:YES];
     
-    long leavingIn = ([[NSDate date] timeIntervalSince1970] * 1000 - self.userInfo.current_session.departure_plan_timestamp);
+    long leavingIn = ((long)[[NSDate date] timeIntervalSince1970] * 1000L - self.userInfo.current_session.departure_plan_timestamp);
     NSString*  desc = @"Tap to set when you plan to unpark.";
     if (self.userInfo.current_session.departing_in == -1){
         desc = @" ";
-    }else if (self.userInfo.current_session.departing_in == 0 || [[NSDate date] timeIntervalSince1970] * 1000 - self.userInfo.current_session.departure_plan_timestamp > self.userInfo.current_session.departing_in * 60 * 1000){
+    }else if (self.userInfo.current_session.departing_in == 0 || ([[NSDate date] timeIntervalSince1970] * 1000 - self.userInfo.current_session.departure_plan_timestamp > self.userInfo.current_session.departing_in * 60 * 1000 && self.userInfo.current_session.departing_in < 20)){
          desc = @"Tap to set when you plan to unpark.";
     }else{
         NSString* adjustment = @"";
-        if (self.userInfo.current_session.departing_in > 20){
-            adjustment = @"over ";
+        if (self.userInfo.current_session.departing_in >= 20){
+            desc = [NSString stringWithFormat:@"You are set to unpark in over 20 min"];
+        }else{
+            long minutesLeft = self.userInfo.current_session.departing_in - leavingIn/60000L;
+            desc = [NSString stringWithFormat:@"You are set to unpark in %@%d min",adjustment,(int)minutesLeft];
         }
-        long minutesLeft = self.userInfo.current_session.departing_in - leavingIn/60000;
-        desc = [NSString stringWithFormat:@"You are set to unpark in %@%d min",adjustment,(int)minutesLeft];
+//        NSLog(@"leavingIn: %ld",leavingIn);
+//        NSLog(@"leavingIn/60000: %ld",leavingIn/60000L);
+//        NSLog(@"current: %ld",((long)[[NSDate date] timeIntervalSince1970] * 1000L));
+//        NSLog(@"departure_plan_timestamp: %ld",self.userInfo.current_session.departure_plan_timestamp);
+
     }
     
     Place* parkingPlace = [[Place alloc]initWithLatitude:[[[NSUserDefaults standardUserDefaults]objectForKey:@"parking_location_lat"]doubleValue] longitude:[[[NSUserDefaults standardUserDefaults]objectForKey:@"parking_location_lng"]doubleValue]];
@@ -327,7 +333,7 @@
     //Extract stored driver plans
     self.userInfo.current_session.departing_in = [[[NSUserDefaults standardUserDefaults]valueForKey:@"departing_in"]intValue];
     self.userInfo.current_session.departure_plan_timestamp = [[[NSUserDefaults standardUserDefaults]valueForKey:@"departure_plan_timestamp"]longValue];
-    
+    NSLog(@"***%@",[[NSUserDefaults standardUserDefaults]valueForKey:@"departure_plan_timestamp"]);
     //Set parking location from previous session
     CLLocationCoordinate2D prevParkingLoc =   CLLocationCoordinate2DMake([[[NSUserDefaults standardUserDefaults]objectForKey:@"parking_location_lat"]doubleValue], [[[NSUserDefaults standardUserDefaults]objectForKey:@"parking_location_lng"]doubleValue]);
     
@@ -388,6 +394,7 @@
 }
 
 -(void)viewDidAppear:(BOOL)animated{
+    [super viewDidAppear:YES];
     if ([self.locationManager respondsToSelector:@selector(requestAlwaysAuthorization)]) {
         [self.locationManager requestAlwaysAuthorization];
     }
@@ -773,6 +780,7 @@
 -(void)mapView:(MKMapView *)mapView annotationView:(MKAnnotationView *)view calloutAccessoryControlTapped:(UIControl *)control{
     if (control.tag == 1){
         NSLog(@"WILL NAVIGATE");
+        [self navigateToLocation:view.annotation.coordinate];
     }else if (control.tag == 2){
         NSLog(@"WILL SET MY PLAN");
         //Update Status
@@ -895,6 +903,7 @@
                                    self.userInfo.current_session.departing_in = 5;
                                    NSLog(@"WTF: %d",self.userInfo.current_session.departing_in);
                                    self.userInfo.current_session.departure_plan_timestamp = [[NSDate date] timeIntervalSince1970] * (long)1000;
+                                   [[NSUserDefaults standardUserDefaults] setValue:[NSNumber numberWithLong:self.userInfo.current_session.departure_plan_timestamp] forKey:@"departure_plan_timestamp"];
                                    [self simpleAlertViewTitle:@"Thank you!" message:@" You've set your plan to depart in 5 mins."];
                                    [self updateParkingAnnotation];
                                }];
@@ -911,6 +920,7 @@
                                    self.userInfo.current_session.departing_in = 15;
                                   self.userInfo.current_session.departure_plan_timestamp = [[NSDate date] timeIntervalSince1970] * (long)1000;
                                   [self simpleAlertViewTitle:@"Thank you!" message:@" You've set your plan to depart in 15 mins."];
+                                  [[NSUserDefaults standardUserDefaults] setValue:[NSNumber numberWithLong:self.userInfo.current_session.departure_plan_timestamp] forKey:@"departure_plan_timestamp"];
                                   [self updateParkingAnnotation];
                               }];
     
@@ -922,7 +932,10 @@
                               handler:^(UIAlertAction * action) {
                                   //Handle your yes please button action here
                                   self.userInfo.current_session.departing_in = 20;
-                                  self.userInfo.current_session.departure_plan_timestamp = [[NSDate date] timeIntervalSince1970] * (long)1000;
+                                  self.userInfo.current_session.departure_plan_timestamp = (long)[[NSDate date] timeIntervalSince1970] * (long)1000;
+                                  [[NSUserDefaults standardUserDefaults] setValue:[NSNumber numberWithLong:self.userInfo.current_session.departure_plan_timestamp] forKey:@"departure_plan_timestamp"];
+                                  NSLog(@"*departure_plan_timestamp: %ld",self.userInfo.current_session.departure_plan_timestamp);
+                                  NSLog(@"*departure_plan_timestamp: %@",[[NSUserDefaults standardUserDefaults]valueForKey:@"departure_plan_timestamp"]);
                                   [self simpleAlertViewTitle:@"Thank you!" message:@" You've set your plan to depart in over 20 mins."];
                                   [self updateParkingAnnotation];
                               }];
@@ -1014,7 +1027,7 @@
     int status = [[dict objectForKey:@"status"] intValue];
     if (status == PARKING){
         setParkingView.hidden = NO;
-        [self performSelector:@selector(hideView:) withObject:setParkingView afterDelay:60];
+        [self performSelector:@selector(hideView:) withObject:setParkingView afterDelay:120];
     }else{
         setParkingView.hidden = YES;
     }
@@ -1057,5 +1070,16 @@
                          
                      }];
     
+}
+
+-(void)navigateToLocation:(CLLocationCoordinate2D)_navLocation {
+    if ([[UIApplication sharedApplication] canOpenURL:
+         [NSURL URLWithString:@"comgooglemaps://"]]) {
+        NSString *string = [NSString stringWithFormat:@"comgooglemaps://?daddr=%f,%f&directionsmode=driving",_navLocation.latitude,_navLocation.longitude];
+        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:string]];
+    } else {
+        NSString *string = [NSString stringWithFormat:@"http://maps.apple.com/?ll=%f,%f",_navLocation.latitude,_navLocation.longitude];
+        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:string]];
+    }
 }
 @end

@@ -373,15 +373,17 @@ static NSString* condition;
         
         // Add current acceleration to array
         NSValue *boxedAcceleration = [NSValue value:&_acceleration withObjCType:@encode(CMAcceleration)];
-        if (boxedAcceleration != nil){
-            [shakeDataForOneSec addObject:boxedAcceleration];
-        }
+        
+        [shakeDataForOneSec addObject:boxedAcceleration];
+        
     } else {
+        NSLog(@"shakeDataForOneSec: %d",(int)shakeDataForOneSec.count);
         // Now, when one second was elapsed, calculate shake count in this interval. If there will be at least one shake then
         // we'll determine it as shaked in all this one second interval.
         
         int shakeCount = 0;
-        for (NSValue *boxedAcceleration in shakeDataForOneSec) {
+        NSArray* shakeDataForOneSecCopy = [shakeDataForOneSec copy];
+        for (NSValue *boxedAcceleration in shakeDataForOneSecCopy) {
             CMAcceleration acceleration;
             [boxedAcceleration getValue:&acceleration];
             
@@ -401,6 +403,8 @@ static NSString* condition;
         }
         user.current_session.on_feet = shakeCount > 0;
         
+//        [shakeDataForOneSec removeAllObjects];
+        shakeDataForOneSecCopy = nil;
         shakeDataForOneSec = nil;
         currentFiringTimeInterval = 0.0f;
     }
