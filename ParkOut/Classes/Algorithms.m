@@ -21,19 +21,14 @@ static NSString* condition;
         [user.current_session.user_locations removeObjectAtIndex:0];
     }
     NSLog(@"User locations: %d",(int)user.current_session.user_locations.count);
-    CLLocationCoordinate2D prevParkingLoc =   CLLocationCoordinate2DMake([[[NSUserDefaults standardUserDefaults]objectForKey:@"parking_location_lat"]doubleValue], [[[NSUserDefaults standardUserDefaults]objectForKey:@"parking_location_lng"]doubleValue]);
     
-    if (user.current_session.status != UNASSIGNED && [self distanceFrom:prevParkingLoc to:location.coordinate] > MAX_RADIUS
-        && user.current_session.isSet){
-        user.current_session.status = UNASSIGNED;
-        
-        [Utils addToLog:user message:[NSString stringWithFormat:@"Top. setting status to UNASSIGNED"]];
-        
-        user.current_session.parking_location = CLLocationCoordinate2DMake(0, 0);
-        [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"parking_location_lat"];
-        [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"parking_location_lng"];
-    }
     
+    //User shut off the app while the status was PARKING. He has a spot, but he may have moved away from it. He turns the app back on. If he is further than DELTA, we he is not longer parking, so we default to NOT_MOVING
+//    if (self.userInfo.current_session.status == PARKING){
+//        if (Algorithms distanceFrom:self.c to:<#(CLLocationCoordinate2D)#>)
+//            }
+//}
+//}
     if ([location speed] > DRIVING_SPEED || ([location speed] > RUNNING_SPEED && !user.current_session.on_feet)) {
         if ([self speedStaysDriving:user.current_session.user_locations pings: 2 * FACTOR]){
             user.current_session.status = NOT_PARKED;
@@ -211,10 +206,23 @@ static NSString* condition;
     }
     
     if (user.current_session.status != user.current_session.prevStatus){
+        //this is in case there is a crash
+        if (user.current_session.status == PARKED_COMING_BACK
+             || user.current_session.status == PARKED_MOVING_AWAY || user.current_session.status == PARKED_NOT_IN_RADIUS
+            || user.current_session.status == NOT_MOVING){
+            
+            [[NSUserDefaults standardUserDefaults] setValue:[NSNumber numberWithInt:NOT_MOVING] forKey:@"status"];
+
+        }else if (user.current_session.status == NOT_PARKED || user.current_session.status == UNASSIGNED || user.current_session.status == PARKING){
+            [[NSUserDefaults standardUserDefaults] setValue:[NSNumber numberWithInt:user.current_session.status] forKey:@"status"];
+        }
+        
+        
         if (user.current_session.status == NOT_PARKED){
             user.current_session.timestamp = ([[NSDate date] timeIntervalSince1970] * (long)1000);
         }
          if (user.current_session.status == PARKING){
+             user.current_session.parking_location = location.coordinate;//Override algorithmic idea for now
              NSDictionary* dict = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:PARKING],@"status", nil];
              [[NSNotificationCenter defaultCenter]postNotificationName:@"status_changed" object:nil userInfo:dict];
          }

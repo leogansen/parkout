@@ -10,7 +10,7 @@
 
 @implementation UserInfo
 
-@synthesize current_session,parking_location,log,email_address,first_name,last_name,loggedIn,password,token,user_id,username,middle_name,suffix,title,vehicle_make;
+@synthesize current_session,log,email_address,first_name,last_name,loggedIn,password,token,user_id,username,middle_name,suffix,title,vehicle_make;
 
 -(id)init{
     self = [super init];

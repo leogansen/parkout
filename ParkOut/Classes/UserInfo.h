@@ -26,7 +26,6 @@
 
 @property(copy, nonatomic) NSString* token;
 @property (strong, nonatomic) ParkingSession* current_session;
-@property (readwrite) CLLocationCoordinate2D parking_location;
 
 @property (strong, atomic) NSMutableArray* log;
 

@@ -17,6 +17,7 @@
 #import "Utils.h"
 #import "SlideUpDrawer.h"
 #import "DeveloperController.h"
+#import "Constants.h"
 
 @interface ViewController : UIViewController <CLLocationManagerDelegate,MKMapViewDelegate,SlideMenuDelegate,UIGestureRecognizerDelegate,LoginControllerDelegate,SlideUpDrawerDelegate,ManageUserControllerDelegate,UISearchBarDelegate,UITextFieldDelegate> {
     Algorithms* algo;
@@ -40,6 +41,8 @@
     UIView* setParkingView;
     UIImageView* personImageView;
     UILabel* personCountLabel;
+    
+    BOOL signalStarted;
 }
 //@property (nonatomic, strong) UISearchBar* searchBar;
 @property (strong, nonatomic) UserInfo* userInfo;
