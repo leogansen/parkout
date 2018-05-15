@@ -361,53 +361,74 @@ static NSString* condition;
 + (void)detectShaking:(CMAcceleration)_acceleration userInfo:(UserInfo*)user
 {
     
-    //Array for collecting acceleration for last one seconds period.
-    static NSMutableArray *shakeDataForOneSec = nil;
-    //Counter for calculating completion of one second interval
+    static int shakeCount = 0;
     static float currentFiringTimeInterval = 0.0f;
-    
     currentFiringTimeInterval += 0.01f;
-    if (currentFiringTimeInterval < 1.0f) {// if one second time intervall not completed yet
-        if (!shakeDataForOneSec)
-            shakeDataForOneSec = [NSMutableArray array];
-        
-        // Add current acceleration to array
-        NSValue *boxedAcceleration = [NSValue value:&_acceleration withObjCType:@encode(CMAcceleration)];
-        
-        [shakeDataForOneSec addObject:boxedAcceleration];
-        
-    } else {
-        NSLog(@"shakeDataForOneSec: %d",(int)shakeDataForOneSec.count);
-        // Now, when one second was elapsed, calculate shake count in this interval. If there will be at least one shake then
-        // we'll determine it as shaked in all this one second interval.
-        
-        int shakeCount = 0;
-        NSArray* shakeDataForOneSecCopy = [shakeDataForOneSec copy];
-        for (NSValue *boxedAcceleration in shakeDataForOneSecCopy) {
-            CMAcceleration acceleration;
-            [boxedAcceleration getValue:&acceleration];
-            
-            /*********************************
-             *       Detecting shaking
-             *********************************/
-            double accX_2 = powf(acceleration.x,2);
-            double accY_2 = powf(acceleration.y,2);
-            double accZ_2 = powf(acceleration.z,2);
-            
-            double vectorSum = sqrt(accX_2 + accY_2 + accZ_2);
-//            NSLog(@"vectorSum: %f",vectorSum);
-            if (vectorSum >= 1.6f) {//3.5
-                shakeCount++;
-            }
-            /*********************************/
-        }
-        user.current_session.on_feet = shakeCount > 0;
-        
-//        [shakeDataForOneSec removeAllObjects];
-        shakeDataForOneSecCopy = nil;
-        shakeDataForOneSec = nil;
-        currentFiringTimeInterval = 0.0f;
+
+    double accX_2 = powf(_acceleration.x,2);
+    double accY_2 = powf(_acceleration.y,2);
+    double accZ_2 = powf(_acceleration.z,2);
+    
+    double vectorSum = sqrt(accX_2 + accY_2 + accZ_2);
+    //            NSLog(@"vectorSum: %f",vectorSum);
+    if (vectorSum >= 1.6f) {//3.5
+        shakeCount++;
     }
+//    NSLog(@"currentFiringTimeInterval: %f",currentFiringTimeInterval);
+    if (currentFiringTimeInterval > 1.0f){
+        NSLog(@"vectorSum: %f",vectorSum);
+        user.current_session.on_feet = shakeCount > 0;
+        currentFiringTimeInterval = 0.0f;
+        shakeCount = 0;
+    }
+    
+//    //Array for collecting acceleration for last one seconds period.
+//    static NSMutableArray *shakeDataForOneSec = nil;
+//    //Counter for calculating completion of one second interval
+//    static float currentFiringTimeInterval = 0.0f;
+//
+//    currentFiringTimeInterval += 0.01f;
+//    if (currentFiringTimeInterval < 1.0f) {// if one second time intervall not completed yet
+//        if (!shakeDataForOneSec)
+//            shakeDataForOneSec = [NSMutableArray array];
+//
+//        // Add current acceleration to array
+//        NSValue *boxedAcceleration = [NSValue value:&_acceleration withObjCType:@encode(CMAcceleration)];
+//
+//        [shakeDataForOneSec addObject:boxedAcceleration];
+//
+//    } else {
+//        NSLog(@"shakeDataForOneSec: %d",(int)shakeDataForOneSec.count);
+//        // Now, when one second was elapsed, calculate shake count in this interval. If there will be at least one shake then
+//        // we'll determine it as shaked in all this one second interval.
+//
+//        int shakeCount = 0;
+//        NSArray* shakeDataForOneSecCopy = [shakeDataForOneSec copy];
+//        for (NSValue *boxedAcceleration in shakeDataForOneSecCopy) {
+//            CMAcceleration acceleration;
+//            [boxedAcceleration getValue:&acceleration];
+//
+//            /*********************************
+//             *       Detecting shaking
+//             *********************************/
+//            double accX_2 = powf(acceleration.x,2);
+//            double accY_2 = powf(acceleration.y,2);
+//            double accZ_2 = powf(acceleration.z,2);
+//
+//            double vectorSum = sqrt(accX_2 + accY_2 + accZ_2);
+////            NSLog(@"vectorSum: %f",vectorSum);
+//            if (vectorSum >= 1.6f) {//3.5
+//                shakeCount++;
+//            }
+//            /*********************************/
+//        }
+//        user.current_session.on_feet = shakeCount > 0;
+//
+////        [shakeDataForOneSec removeAllObjects];
+//        shakeDataForOneSecCopy = nil;
+//        shakeDataForOneSec = nil;
+//        currentFiringTimeInterval = 0.0f;
+//}
 }
 
 @end
