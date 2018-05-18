@@ -21,11 +21,12 @@
         
         userInfo = [[UserInfo alloc]init];
         algo = [[Algorithms alloc]init];
-        
-//        userInfo.current_session.status = UNASSIGNED;
+        addedPins = [NSMutableArray array];
+        previouslyAddedPins = [NSMutableArray array];
+        //        userInfo.current_session.status = UNASSIGNED;
         userInfo.current_session.status = [[[NSUserDefaults standardUserDefaults] valueForKey:@"status"]intValue];
-
-        pinTag = 1;
+        
+        pinTag = 2;
         currentAnnotations = [NSMutableDictionary dictionary];
         self.motionManager = [[CMMotionManager alloc] init];
         
@@ -40,11 +41,11 @@
 }
 - (void)viewDidLoad {
     [super viewDidLoad];
-
+    
     // Do any additional setup after loading the view, typically from a nib.
     
     self.view.backgroundColor = [UIColor whiteColor];
-   
+    
     map = [[MKMapView alloc]initWithFrame:CGRectMake(0, 64, self.view.frame.size.width, self.view.frame.size.height - 64 - 60)];
     map.delegate = self;
     [self.view addSubview:map];
@@ -60,7 +61,7 @@
     search.autocorrectionType=UITextAutocorrectionTypeNo;
     search.clearButtonMode = YES;
     search.borderStyle = UITextBorderStyleRoundedRect;
-
+    
     grayLabel.backgroundColor = [UIColor whiteColor];
     [self.view addSubview:grayLabel];
     [self.view addSubview:search];
@@ -139,7 +140,7 @@
     setParkingView.hidden = YES;
     [self.view addSubview:setParkingView];
     
-
+    
 }
 -(void)adjustTopBarForUserCount:(int)count{
     personCountLabel.text = [NSString stringWithFormat:@"%d",count];
@@ -148,11 +149,11 @@
     search.frame = CGRectMake(50, 23, self.view.frame.size.width - 50 - 23 - personImageView.frame.size.width - personCountLabel.frame.size.width, 30);
     personImageView.frame = CGRectMake(search.frame.origin.x + search.frame.size.width + 6, 25, 20, 27);
     personCountLabel.frame = CGRectMake(personImageView.frame.origin.x + personImageView.frame.size.width + 5, personImageView.frame.origin.y, personCountLabel.frame.size.width, personImageView.frame.size.height);
-
+    
 }
 -(void)openMenu{
     SlideMenu* menu = nil;
-
+    
     map.scrollEnabled = NO;
     map.scrollEnabled = YES;
     BOOL slideViewOpened = NO;
@@ -168,8 +169,8 @@
         menu.delegate = self;
         [self.view addSubview:menu];
     }
-        
-   
+    
+    
 }
 -(void)addMyParkingLocation{
     if (!self.userInfo.current_session.isSet){
@@ -187,7 +188,7 @@
     if (self.userInfo.current_session.departing_in == -1){
         desc = @" ";
     }else if (self.userInfo.current_session.departing_in == 0 || ([[NSDate date] timeIntervalSince1970] * 1000 - self.userInfo.current_session.departure_plan_timestamp > self.userInfo.current_session.departing_in * 60 * 1000 && self.userInfo.current_session.departing_in < 20)){
-         desc = @"Tap to set when you plan to unpark.";
+        desc = @"Tap to set when you plan to unpark.";
     }else{
         NSString* adjustment = @"";
         if (self.userInfo.current_session.departing_in >= 20){
@@ -196,11 +197,11 @@
             long minutesLeft = self.userInfo.current_session.departing_in - leavingIn/60000L;
             desc = [NSString stringWithFormat:@"You are set to unpark in %@%d min",adjustment,(int)minutesLeft];
         }
-//        NSLog(@"leavingIn: %ld",leavingIn);
-//        NSLog(@"leavingIn/60000: %ld",leavingIn/60000L);
-//        NSLog(@"current: %ld",((long)[[NSDate date] timeIntervalSince1970] * 1000L));
-//        NSLog(@"departure_plan_timestamp: %ld",self.userInfo.current_session.departure_plan_timestamp);
-
+        //        NSLog(@"leavingIn: %ld",leavingIn);
+        //        NSLog(@"leavingIn/60000: %ld",leavingIn/60000L);
+        //        NSLog(@"current: %ld",((long)[[NSDate date] timeIntervalSince1970] * 1000L));
+        //        NSLog(@"departure_plan_timestamp: %ld",self.userInfo.current_session.departure_plan_timestamp);
+        
     }
     
     Place* parkingPlace = [[Place alloc]initWithLatitude:[[[NSUserDefaults standardUserDefaults]objectForKey:@"parking_location_lat"]doubleValue] longitude:[[[NSUserDefaults standardUserDefaults]objectForKey:@"parking_location_lng"]doubleValue]];
@@ -213,7 +214,7 @@
     parkingAnnotation.user_id = self.userInfo.user_id;
     parkingAnnotation.tag = 0;
     [map addAnnotation:parkingAnnotation];
-
+    
 }
 -(void)fetchParkingLocations{
     NSLog(@"Fetching parking locations");
@@ -249,7 +250,7 @@
                         }
                     }else{
                         parkingPlace.name = [NSString stringWithFormat:@"LEAVING IN"];
-                        parkingPlace.description = [NSString stringWithFormat:@"%d SECONDS",(int)session.distance_from_car];
+                        parkingPlace.description = [self formatPinTime:(int)session.distance_from_car];
                     }
                     MapAnnotation* parkingAnnotation = [[MapAnnotation alloc]initWithPlace:parkingPlace];
                     parkingAnnotation.title = parkingPlace.name;
@@ -270,41 +271,53 @@
                             [map addAnnotation:parkingAnnotation];
                         }
                     }else{
+                        [addedPins addObject:parkingAnnotation];
                         
                         [map addAnnotation:parkingAnnotation];
-                        NSLog(@"selectedAnnotationId: %@ user_id: %@",selectedAnnotationId,session.user_id);
+                        NSLog(@"-- Adding annotation: Pin: tag: %d removable tag: %d user_id: %@",parkingAnnotation.tag,pinTag - 1,parkingAnnotation.driver_id);
+                        //                        NSLog(@"selectedAnnotationId: %@ user_id: %@",selectedAnnotationId,session.user_id);
                         if ([selectedAnnotationId isEqualToString:session.user_id]){
                             [map selectAnnotation:parkingAnnotation animated:NO];
                             [currentAnnotations removeAllObjects];
                         }
                     }
                 }
+                
                 if ([[responseDict objectForKey:@"parking"] count] > 0){
+                    [self adjustTopBarForUserCount:(int)[[responseDict objectForKey:@"parking"] count]];
+                    
                     pinTag++;
                     NSLog(@"Parking found: %d",pinTag);
-                    for (int i = 0; i < map.annotations.count; i++){
-                        if (![[map.annotations[i] title] isEqualToString:@"My Location"]
-                            && ([(MapAnnotation*)map.annotations[i] tag] == pinTag - 2 || [(MapAnnotation*)map.annotations[i] tag] == -1 * (pinTag - 2))){
-                            
-                            [map removeAnnotation:map.annotations[i]];
-                            
+                    NSLog(@"map before: %d",(int)map.annotations.count);
+                    for (int i = 0; i < (int)map.annotations.count; i++){
+                        NSLog(@"*PIN NAME: %@",[map.annotations[i] title]);
+                        if (![[map.annotations[i] title] isEqualToString:@"My Location"]){
+                            NSLog(@"Pin: tag: %d removable tag: %d user_id: %@",[(MapAnnotation*)map.annotations[i] tag],pinTag - 2,[(MapAnnotation*)map.annotations[i] driver_id]);
                         }
                     }
                 }
+                [map removeAnnotations:previouslyAddedPins];
+                previouslyAddedPins = [NSMutableArray arrayWithArray:addedPins];
                 
-                [self adjustTopBarForUserCount:(int)[[responseDict objectForKey:@"parking"] count]];
-                NSLog(@"map: %d",(int)map.annotations.count);
-
-
+                NSLog(@"map after________________: %d",(int)map.annotations.count);
+                for (int i = 0; i < (int)map.annotations.count; i++){
+                    NSLog(@"*PIN NAME: %@",[map.annotations[i] title]);
+                    if (![[map.annotations[i] title] isEqualToString:@"My Location"]){
+                        NSLog(@"Pin: tag: %d removable tag: %d user_id: %@",[(MapAnnotation*)map.annotations[i] tag],pinTag - 2,[(MapAnnotation*)map.annotations[i] driver_id]);
+                    }
+                }
+                NSLog(@"________________");
+                
+                
             }else{
                 NSLog(@"Failed to fetch parking locations");
             }
         }else{
-             NSLog(@"Failed to fetch parking locations");
+            NSLog(@"Failed to fetch parking locations");
         }
     }];
     
-  
+    
 }
 //-(void)loginControllerDidLogIn:(UserInfo *)userInfo{
 //    NSLog(@"loginControllerDidLogIn");
@@ -360,7 +373,7 @@
         [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"parking_location_lat"];
         [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"parking_location_lng"];
     }
-   
+    
     
     //This is only called if the user closed the app while driving. If he's moved not too far away, and re-opened the app within a few minutes, we assume that he is parking at the point of opening the app. Otherwise, we discard the fact that the user has been driving and start anew.
     if (self.userInfo.current_session.status == NOT_PARKED && [[NSDate date]timeIntervalSince1970] - [[[NSUserDefaults standardUserDefaults]valueForKey:@"last_signal_timestamp"]longValue] > 30){
@@ -372,7 +385,7 @@
         [Utils addToLog:self.userInfo message:[NSString stringWithFormat:@"\nModified status: %d", self.userInfo.current_session.status]];
     };
     
-    //Other cases require the location signal to begin. They are in Algorithms    
+    //Other cases require the location signal to begin. They are in Algorithms
     
     
     [self start];
@@ -399,18 +412,18 @@
         [self.locationManager requestAlwaysAuthorization];
     }
     [self setUpView];
-//    [self adjustTopBarForUserCount:1000];
+    //    [self adjustTopBarForUserCount:1000];
 }
 -(void)setUpView{
     NSLog(@"Logged in? %d",self.userInfo.loggedIn);
     //For Testing:
-//    self.userInfo.loggedIn = YES;
+    //    self.userInfo.loggedIn = YES;
     if (!self.userInfo.loggedIn){
         if ([[NSUserDefaults standardUserDefaults]objectForKey:@"username"] != nil && [[NSUserDefaults standardUserDefaults]objectForKey:@"password"] != nil){
             [Communicator logInWithUsername:[[NSUserDefaults standardUserDefaults]objectForKey:@"username"]  password:[[NSUserDefaults standardUserDefaults]objectForKey:@"password"]  completion:^(NSDictionary* responseDict, BOOL success) {
                 if (success){
-                    [self loginSuccess:responseDict];                   
-
+                    [self loginSuccess:responseDict];
+                    
                 }else{
                     LoginController* lc = [[LoginController alloc]init];
                     if (!lc.isBeingPresented){
@@ -430,7 +443,7 @@
         }
         
     }else{
-      
+        
         [self start];
         
         if (timer != nil){
@@ -441,7 +454,7 @@
         NSLog(@"Location manager: ");
     }
     NSLog(@"setUpView status: %d",self.userInfo.current_session.status);
-
+    
 }
 
 -(void)start{
@@ -461,22 +474,22 @@
         [self focusMapOnUserLocation];
     }
     
-   
+    
     if (carLocation.latitude != self.userInfo.current_session.parking_location.latitude
         && carLocation.longitude != self.userInfo.current_session.parking_location.longitude){
         mapShouldFollowUser = NO;
         
         [map removeAnnotations:map.annotations];
-
+        
         [[NSUserDefaults standardUserDefaults]setObject:[NSNumber numberWithDouble:self.userInfo.current_session.parking_location.latitude] forKey:@"parking_location_lat"];
         [[NSUserDefaults standardUserDefaults]setObject:[NSNumber numberWithDouble:self.userInfo.current_session.parking_location.longitude] forKey:@"parking_location_lng"];
         [self addMyParkingLocation];
-        [self checkIfLocationIsValid:self.userInfo.current_session.parking_location];
+        //        [self checkIfLocationIsValid:self.userInfo.current_session.parking_location];
         
     }
     
     carLocation = self.userInfo.current_session.parking_location;
-
+    
     if ([locations[locations.count - 1] horizontalAccuracy] > 60){
         badSignalCount++;
         if (badSignalCount == 30){
@@ -529,7 +542,7 @@
         currentSession.distance_from_car = [locations[locations.count - 1] distanceFromLocation:car];
     }
     currentSession.time_from_car = currentSession.distance_from_car;
-   
+    
     locationCount++;
     if (locationCount == 3){
         locationCount = 0;
@@ -571,7 +584,7 @@
                      NSString* city = [NSString stringWithFormat:@"%@, ",placemark.locality];
                      NSString* state = placemark.administrativeArea;
                      NSString* zipCode = placemark.postalCode;
-
+                     
                      if (placemark.subThoroughfare==NULL){
                          houseNumber=@"";
                      }
@@ -711,14 +724,14 @@
         userLocation.frame = CGRectMake(0, 0, 50, 71);
         [map addAnnotation:userLocation.annotation];
         return userLocation;
-//        return nil;
+        //        return nil;
     }
     NSLog(@"Adding hash: %lu",annotation.hash);
     NSLog(@"use id?: %@",[(MapAnnotation*)annotation user_id]);
-
-   
+    
+    
     [currentAnnotations setObject:(MapAnnotation*)annotation forKey:[NSNumber numberWithUnsignedInteger:annotation.hash]];
-
+    
     if ([(MapAnnotation*)annotation tag] == 0){
         MKAnnotationView* pinForRoute = [[MKAnnotationView alloc] initWithAnnotation:annotation reuseIdentifier:@"pinForRoute"];
         pinForRoute.tag = [(MapAnnotation*)annotation tag];
@@ -758,14 +771,14 @@
             }
         }
         
-
+        
         pinViewNormal.canShowCallout = YES;
         return pinViewNormal;
     }
 }
 -(void)mapView:(MKMapView *)mapView didSelectAnnotationView:(MKAnnotationView *)view{
     NSLog(@"Retrieving hash: %lu currentAnnotations: %d",view.annotation.hash,(int)currentAnnotations.count);
-
+    
     NSString* userId = [[currentAnnotations objectForKey:[NSNumber numberWithUnsignedInteger:view.annotation.hash]] user_id];
     NSLog(@"USER ID: %@",userId);
     selectedAnnotationId = userId;
@@ -794,7 +807,7 @@
         NSLog(@"WILL ASK A QUESTION");
         [Communicator postNotification:[(MapAnnotation*)view.annotation driver_id] message:@"Other users in the area would like to know when you'd be parking out. Please help other users by updating your intentions!" completion:^(BOOL success, BOOL message_exists, NSString *message) {
             [mapView deselectAnnotation:view.annotation animated:YES];
-
+            
         }];
         [self showMessage];
     }
@@ -813,7 +826,7 @@
         region.span.longitudeDelta = .05;
         [map setRegion:region animated:YES];
     }
-
+    
 }
 
 -(void)geocodeAddress:(NSString*)address completion:(void (^)(BOOL,NSError*,CLLocationCoordinate2D))completion
@@ -849,8 +862,8 @@
 
 -(void)locationManager:(CLLocationManager *)manager didEnterRegion:(nonnull CLRegion *)region{
     [self simpleAlertViewTitle:@"Region Changed!" message:@""];
-//    CLLocation* loc = [[CLLocation alloc]initWithLatitude:region.center.latitude longitude:region.center.longitude];
-//    [Algorithms determineStatus:loc userInfo:self.userInfo];
+    //    CLLocation* loc = [[CLLocation alloc]initWithLatitude:region.center.latitude longitude:region.center.longitude];
+    //    [Algorithms determineStatus:loc userInfo:self.userInfo];
 }
 
 -(void)tapReceived:(UITapGestureRecognizer*)recognizer{
@@ -867,7 +880,7 @@
 }
 -(void)textFieldDidEndEditing:(UITextField *)textField{
     [textField resignFirstResponder];
-
+    
 }
 -(BOOL)textFieldShouldBeginEditing:(UITextField *)textField{
     mapShouldFollowUser = NO;
@@ -896,58 +909,58 @@
     //Add Buttons
     
     UIAlertAction* button5 = [UIAlertAction
-                               actionWithTitle:@"In 5 minutes"
-                               style:UIAlertActionStyleDefault
-                               handler:^(UIAlertAction * action) {
-                                   //Handle your yes please button action here
-                                   self.userInfo.current_session.departing_in = 5;
-                                   NSLog(@"WTF: %d",self.userInfo.current_session.departing_in);
-                                   self.userInfo.current_session.departure_plan_timestamp = [[NSDate date] timeIntervalSince1970] * (long)1000;
-                                   [[NSUserDefaults standardUserDefaults] setValue:[NSNumber numberWithLong:self.userInfo.current_session.departure_plan_timestamp] forKey:@"departure_plan_timestamp"];
-                                   [self simpleAlertViewTitle:@"Thank you!" message:@" You've set your plan to depart in 5 mins."];
-                                   [self updateParkingAnnotation];
-                               }];
+                              actionWithTitle:@"In 5 minutes"
+                              style:UIAlertActionStyleDefault
+                              handler:^(UIAlertAction * action) {
+                                  //Handle your yes please button action here
+                                  self.userInfo.current_session.departing_in = 5;
+                                  NSLog(@"WTF: %d",self.userInfo.current_session.departing_in);
+                                  self.userInfo.current_session.departure_plan_timestamp = [[NSDate date] timeIntervalSince1970] * (long)1000;
+                                  [[NSUserDefaults standardUserDefaults] setValue:[NSNumber numberWithLong:self.userInfo.current_session.departure_plan_timestamp] forKey:@"departure_plan_timestamp"];
+                                  [self simpleAlertViewTitle:@"Thank you!" message:@" You've set your plan to depart in 5 mins."];
+                                  [self updateParkingAnnotation];
+                              }];
     
     [alert addAction:button5];
     
-   
+    
     
     UIAlertAction* button15 = [UIAlertAction
-                              actionWithTitle:@"In 15 minutes"
-                              style:UIAlertActionStyleDefault
-                              handler:^(UIAlertAction * action) {
-                                  //Handle your yes please button action here
+                               actionWithTitle:@"In 15 minutes"
+                               style:UIAlertActionStyleDefault
+                               handler:^(UIAlertAction * action) {
+                                   //Handle your yes please button action here
                                    self.userInfo.current_session.departing_in = 15;
-                                  self.userInfo.current_session.departure_plan_timestamp = [[NSDate date] timeIntervalSince1970] * (long)1000;
-                                  [self simpleAlertViewTitle:@"Thank you!" message:@" You've set your plan to depart in 15 mins."];
-                                  [[NSUserDefaults standardUserDefaults] setValue:[NSNumber numberWithLong:self.userInfo.current_session.departure_plan_timestamp] forKey:@"departure_plan_timestamp"];
-                                  [self updateParkingAnnotation];
-                              }];
+                                   self.userInfo.current_session.departure_plan_timestamp = [[NSDate date] timeIntervalSince1970] * (long)1000;
+                                   [self simpleAlertViewTitle:@"Thank you!" message:@" You've set your plan to depart in 15 mins."];
+                                   [[NSUserDefaults standardUserDefaults] setValue:[NSNumber numberWithLong:self.userInfo.current_session.departure_plan_timestamp] forKey:@"departure_plan_timestamp"];
+                                   [self updateParkingAnnotation];
+                               }];
     
     [alert addAction:button15];
-  
+    
     UIAlertAction* button20 = [UIAlertAction
-                              actionWithTitle:@"In over 20 minutes"
-                              style:UIAlertActionStyleDefault
-                              handler:^(UIAlertAction * action) {
-                                  //Handle your yes please button action here
-                                  self.userInfo.current_session.departing_in = 20;
-                                  self.userInfo.current_session.departure_plan_timestamp = (long)[[NSDate date] timeIntervalSince1970] * (long)1000;
-                                  [[NSUserDefaults standardUserDefaults] setValue:[NSNumber numberWithLong:self.userInfo.current_session.departure_plan_timestamp] forKey:@"departure_plan_timestamp"];
-                                  NSLog(@"*departure_plan_timestamp: %ld",self.userInfo.current_session.departure_plan_timestamp);
-                                  NSLog(@"*departure_plan_timestamp: %@",[[NSUserDefaults standardUserDefaults]valueForKey:@"departure_plan_timestamp"]);
-                                  [self simpleAlertViewTitle:@"Thank you!" message:@" You've set your plan to depart in over 20 mins."];
-                                  [self updateParkingAnnotation];
-                              }];
+                               actionWithTitle:@"In over 20 minutes"
+                               style:UIAlertActionStyleDefault
+                               handler:^(UIAlertAction * action) {
+                                   //Handle your yes please button action here
+                                   self.userInfo.current_session.departing_in = 20;
+                                   self.userInfo.current_session.departure_plan_timestamp = (long)[[NSDate date] timeIntervalSince1970] * (long)1000;
+                                   [[NSUserDefaults standardUserDefaults] setValue:[NSNumber numberWithLong:self.userInfo.current_session.departure_plan_timestamp] forKey:@"departure_plan_timestamp"];
+                                   NSLog(@"*departure_plan_timestamp: %ld",self.userInfo.current_session.departure_plan_timestamp);
+                                   NSLog(@"*departure_plan_timestamp: %@",[[NSUserDefaults standardUserDefaults]valueForKey:@"departure_plan_timestamp"]);
+                                   [self simpleAlertViewTitle:@"Thank you!" message:@" You've set your plan to depart in over 20 mins."];
+                                   [self updateParkingAnnotation];
+                               }];
     
     [alert addAction:button20];
     
     UIAlertAction* cancel = [UIAlertAction
-                              actionWithTitle:@"Cancel"
-                              style:UIAlertActionStyleDefault
-                              handler:^(UIAlertAction * action) {
-                                  //Handle your yes please button action here
-                              }];
+                             actionWithTitle:@"Cancel"
+                             style:UIAlertActionStyleDefault
+                             handler:^(UIAlertAction * action) {
+                                 //Handle your yes please button action here
+                             }];
     
     [alert addAction:cancel];
     [self presentViewController:alert animated:YES completion:nil];
@@ -981,29 +994,29 @@
     
     
     UIAlertAction* askButton = [UIAlertAction
-                                   actionWithTitle:@"Ask driver to update when they'd be parking out"
-                                   style:UIAlertActionStyleDefault
-                                   handler:^(UIAlertAction * action) {
-                                       //Handle your yes please button action here
-                                   }];
-    [alert addAction:askButton];
-
-    UIAlertAction* navigateButton = [UIAlertAction
-                                actionWithTitle:@"Nagivate to the spot"
+                                actionWithTitle:@"Ask driver to update when they'd be parking out"
                                 style:UIAlertActionStyleDefault
                                 handler:^(UIAlertAction * action) {
                                     //Handle your yes please button action here
                                 }];
+    [alert addAction:askButton];
+    
+    UIAlertAction* navigateButton = [UIAlertAction
+                                     actionWithTitle:@"Nagivate to the spot"
+                                     style:UIAlertActionStyleDefault
+                                     handler:^(UIAlertAction * action) {
+                                         //Handle your yes please button action here
+                                     }];
     [alert addAction:navigateButton];
-
+    
     UIAlertAction* cancelButton = [UIAlertAction
-                               actionWithTitle:@"Cancel"
-                               style:UIAlertActionStyleDefault
-                               handler:^(UIAlertAction * action) {
-                                   //Handle your yes please button action here
-                               }];
+                                   actionWithTitle:@"Cancel"
+                                   style:UIAlertActionStyleDefault
+                                   handler:^(UIAlertAction * action) {
+                                       //Handle your yes please button action here
+                                   }];
     [alert addAction:cancelButton];
-
+    
 }
 
 -(void)showMessage{
@@ -1026,8 +1039,10 @@
     NSDictionary* dict = [statusNotification userInfo];
     int status = [[dict objectForKey:@"status"] intValue];
     if (status == PARKING){
+        setParkingView.alpha = 1;
         setParkingView.hidden = NO;
         [self performSelector:@selector(hideView:) withObject:setParkingView afterDelay:120];
+        [Communicator postNotification:self.userInfo.user_id message:@"It seems like you've parked. You can now confirm your location." completion:nil];
     }else{
         setParkingView.hidden = YES;
     }
@@ -1042,7 +1057,7 @@
         [[NSUserDefaults standardUserDefaults]setObject:[NSNumber numberWithDouble:self.userInfo.current_session.parking_location.latitude] forKey:@"parking_location_lat"];
         [[NSUserDefaults standardUserDefaults]setObject:[NSNumber numberWithDouble:self.userInfo.current_session.parking_location.longitude] forKey:@"parking_location_lng"];
         [self addMyParkingLocation];
-        [self checkIfLocationIsValid:self.userInfo.current_session.parking_location];
+        //        [self checkIfLocationIsValid:self.userInfo.current_session.parking_location];
         
         carLocation = self.userInfo.current_session.parking_location;
         
@@ -1056,10 +1071,10 @@
                          view.alpha = 0;
                      } completion:^(BOOL finished) {
                          [view removeFromSuperview];
-
+                         
                      }];
     
-
+    
 }
 -(void)hideView:(UIView*)view{
     [UIView animateWithDuration:.25
@@ -1067,7 +1082,7 @@
                          //Animate
                          view.alpha = 0;
                      } completion:^(BOOL finished) {
-                         
+                         view.hidden = YES;
                      }];
     
 }
@@ -1082,4 +1097,20 @@
         [[UIApplication sharedApplication] openURL:[NSURL URLWithString:string]];
     }
 }
+-(NSString*)formatPinTime:(int)seconds{
+    NSString* formattedTime = @"";
+    if (seconds < 60){
+        formattedTime = [NSString stringWithFormat:@"%d SECONDS",seconds];
+    }else if (seconds % 60 == 0){
+        if (seconds / 60 == 1){
+            formattedTime = [NSString stringWithFormat:@"1 MINUTE"];
+        }else{
+            formattedTime = [NSString stringWithFormat:@"%d MINUTES",seconds / 60];
+        }
+    }else{
+        formattedTime = [NSString stringWithFormat:@"%d MIN %d SEC",seconds / 60, seconds % 60];
+    }
+    return formattedTime;
+}
+
 @end

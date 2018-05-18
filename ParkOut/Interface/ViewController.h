@@ -43,6 +43,10 @@
     UILabel* personCountLabel;
     
     BOOL signalStarted;
+    
+    NSMutableArray* addedPins;
+    NSMutableArray* previouslyAddedPins;
+    
 }
 //@property (nonatomic, strong) UISearchBar* searchBar;
 @property (strong, nonatomic) UserInfo* userInfo;

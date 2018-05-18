@@ -153,9 +153,9 @@
                      animations:^{
                          //Animate
                          shiftSpacer = 0;
-//                         if (self.textItems.count > 1){
-//                             shiftSpacer = 10;
-//                         }
+                         //                         if (self.textItems.count > 1){
+                         //                             shiftSpacer = 10;
+                         //                         }
                          self.frame = CGRectMake(0, self.frame.size.height - 60, self.frame.size.width, self.frame.size.height);
                          view.frame = CGRectMake(0, 0, self.frame.size.width, viewHeight);
                          CGPoint p = [self convertPoint:view.frame.origin toView:self.superview];
@@ -210,7 +210,7 @@
     if (self.textItems.count > 1){
         UILabel* view = [[UILabel alloc]initWithFrame:CGRectMake(0, 0, self.frame.size.width, 20)];
         view.text = @"—";
-//        view.font = [UIFont fontWithName:@"Avenir" size:20];
+        //        view.font = [UIFont fontWithName:@"Avenir" size:20];
         view.textColor = [UIColor blackColor];
         view.textAlignment = NSTextAlignmentCenter;
         return view;
@@ -236,7 +236,7 @@
         view = [[TableCellLabel alloc]initWithFrame:CGRectMake(0, 0, self.frame.size.width, 40)];
         view.textColor = [UIColor blackColor];
         view.font = [UIFont fontWithName:@"AvenirNext-DemiBold" size:self.fontSize];
-       
+        
         NSLog(@"TABLE text: %@",[self.textItems objectAtIndex:indexPath.row]);
         if (indexPath.row == 0 && ![[self.textItems objectAtIndex:indexPath.row] isEqualToString:@"^"]){
             UILabel* gKey = [[UILabel alloc]initWithFrame:CGRectMake(20, 0, 150, view.frame.size.height)];
@@ -258,7 +258,7 @@
         [view setAdjustsFontSizeToFitWidth:YES];
         view.numberOfLines = 5;
         view.minimumScaleFactor = 0.4;
-
+        
         if (indexPath.row == 2){
             view.frame = CGRectMake(20, 0, 100, 40);
             [view setAdjustsFontSizeToFitWidth:NO];
@@ -278,11 +278,11 @@
             driverNotmovingView.image = [Utils drawCircle:0 status:6];
             [view1 addSubview:driverNotmovingView];
             [cell addSubview:view1];
-
+            
         }else if (indexPath.row == 3){
             view.frame = CGRectMake(20, 0, self.frame.size.width - 40, 50);
             view.font = [UIFont fontWithName:@"HelveticaNeue-LightItalic" size:14];
-
+            
         }
         
         [cell addSubview:view];
@@ -290,7 +290,7 @@
         for (UIView* v in cell.subviews){
             if ([v isKindOfClass:[TableCellLabel class]]){
                 view = (TableCellLabel*)v;
-               
+                
             }
         }
         
@@ -309,7 +309,7 @@
     view.text = [NSString stringWithFormat:@"%@", [textItems objectAtIndex:indexPath.row]];
     
     if (!isOpen && indexPath.row == 0){
-        view.text = @"(tap to expand)";
+        view.text = @"(tap to see color codes)";
         view.textColor = [UIColor darkTextColor];
     }
     
