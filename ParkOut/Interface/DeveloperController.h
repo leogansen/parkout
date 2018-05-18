@@ -12,14 +12,16 @@
 #import "UserInfo.h"
 #import "Constants.h"
 #import "ParkingSession.h"
+#import <MessageUI/MessageUI.h>
 
-@interface DeveloperController : UIViewController<MKMapViewDelegate,CLLocationManagerDelegate>{
+@interface DeveloperController : UIViewController<MKMapViewDelegate,CLLocationManagerDelegate,MFMailComposeViewControllerDelegate>{
     UILabel* statusLabel;
     UILabel* statusValue;
     MKMapView* map;
     UILabel* infoLabel;
     UITextView* tv;
     UserInfo* userInfo;
+    
 }
 
 -(id)initWithUserInfo:(UserInfo*)userInfo;

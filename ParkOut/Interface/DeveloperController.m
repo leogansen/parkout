@@ -68,6 +68,14 @@
     [dismiss addTarget:self action:@selector(dismissThisController) forControlEvents:UIControlEventTouchDown];
     [self.view addSubview:dismiss];
     
+    UIButton *sendMail = [UIButton buttonWithType:UIButtonTypeCustom];
+    sendMail.frame = CGRectMake(self.view.frame.size.width - 150, self.view.frame.size.height-54, 140, 38);
+    [sendMail setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+    [sendMail setTitle:@"Send Error Log" forState:UIControlStateNormal];
+    sendMail.titleLabel.font = [UIFont fontWithName:@"AvenirNext-DemiBold" size:20];
+    [sendMail addTarget:self action:@selector(sendEmail) forControlEvents:UIControlEventTouchDown];
+    [self.view addSubview:sendMail];
+    
   
 }
 
@@ -107,6 +115,34 @@
 }
 -(void)dismissThisController{
     [self dismissViewControllerAnimated:YES completion:nil];
+}
+-(void)mailComposeController:(MFMailComposeViewController *)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError *)error{
+    [self dismissViewControllerAnimated:controller completion:nil];
+}
+
+-(void)sendEmail{
+    if ([MFMailComposeViewController canSendMail])
+    {
+        MFMailComposeViewController *mail = [[MFMailComposeViewController alloc] init];
+        mail.mailComposeDelegate = self;
+        [mail setSubject:@"ParkOut Error"];
+        NSString* message = @"";
+        for (int i = 0; i < userInfo.log.count; i++){
+            message = [message stringByAppendingString:userInfo.log[i]];
+            if (i < userInfo.log.count - 1 && ![userInfo.log[i+1] containsString:@"\n"]){
+                message = [message stringByAppendingString:@"\n"];
+            }
+
+        }
+        [mail setMessageBody:message isHTML:NO];
+        [mail setToRecipients:@[@"leogansen@gmail.com"]];
+        
+        [self presentViewController:mail animated:YES completion:NULL];
+    }
+    else
+    {
+        NSLog(@"This device cannot send email");
+    }
 }
 /*
 #pragma mark - Navigation
