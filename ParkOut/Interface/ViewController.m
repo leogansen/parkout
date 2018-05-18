@@ -41,12 +41,15 @@
 }
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
+    NSLog(@"HEIGHT: %f",self.view.frame.size.height);
     // Do any additional setup after loading the view, typically from a nib.
-    
+    iPhoneXDeltaCorrection = 0;
+    if (self.view.frame.size.height == 812){
+        iPhoneXDeltaCorrection = 20;
+    }
     self.view.backgroundColor = [UIColor whiteColor];
     
-    map = [[MKMapView alloc]initWithFrame:CGRectMake(0, 64, self.view.frame.size.width, self.view.frame.size.height - 64 - 60)];
+    map = [[MKMapView alloc]initWithFrame:CGRectMake(0, 64 + iPhoneXDeltaCorrection, self.view.frame.size.width, self.view.frame.size.height - 64 - 60 - iPhoneXDeltaCorrection)];
     map.delegate = self;
     [self.view addSubview:map];
     [map setShowsUserLocation:YES];
@@ -54,8 +57,8 @@
     
     //Search bar
     
-    UILabel* grayLabel = [[UILabel alloc]initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 64)];
-    search = [[UITextField alloc]initWithFrame:CGRectMake(50, 23, self.view.frame.size.width-100, 30)];
+    UILabel* grayLabel = [[UILabel alloc]initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, 64 + iPhoneXDeltaCorrection)];
+    search = [[UITextField alloc]initWithFrame:CGRectMake(50, 23 + iPhoneXDeltaCorrection, self.view.frame.size.width-103, 30)];
     search.delegate = self;
     search.placeholder = @"Search for an address";
     search.autocorrectionType=UITextAutocorrectionTypeNo;
@@ -66,7 +69,7 @@
     [self.view addSubview:grayLabel];
     [self.view addSubview:search];
     
-    personImageView = [[UIImageView alloc]initWithFrame:CGRectMake(search.frame.origin.x + search.frame.size.width + 6, 25, 20, 27)];
+    personImageView = [[UIImageView alloc]initWithFrame:CGRectMake(search.frame.origin.x + search.frame.size.width + 6, 25 + iPhoneXDeltaCorrection, 20, 27)];
     personImageView.image = [UIImage imageNamed:@"person.png"];
     [self.view addSubview:personImageView];
     personCountLabel = [[UILabel alloc]initWithFrame:CGRectMake(personImageView.frame.origin.x + personImageView.frame.size.width + 5, personImageView.frame.origin.y, 40, personImageView.frame.size.height)];
@@ -76,7 +79,7 @@
     [self.view addSubview:personCountLabel];
     
     UIButton* openMenuButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    openMenuButton.frame = CGRectMake(15, 27, 20, 20);
+    openMenuButton.frame = CGRectMake(15, 27 + iPhoneXDeltaCorrection, 20, 20);
     [openMenuButton addTarget:self action:@selector(openMenu) forControlEvents:UIControlEventTouchDown];
     [openMenuButton setImage:[UIImage imageNamed:@"menu@3x.png"] forState:UIControlStateNormal];
     [self.view addSubview:openMenuButton];
@@ -109,7 +112,7 @@
     [self.view addGestureRecognizer:panGesture];
     
     UIButton* locateMe = [UIButton buttonWithType:UIButtonTypeCustom];
-    locateMe.frame = CGRectMake(self.view.frame.size.width - 53, self.view.frame.size.height - 117, 50, 50);
+    locateMe.frame = CGRectMake(self.view.frame.size.width - 53 - iPhoneXDeltaCorrection, self.view.frame.size.height - 117, 50, 50);
     [locateMe setImage:[UIImage imageNamed:@"locate@3x"] forState:UIControlStateNormal];
     [locateMe addTarget:self action:@selector(locate) forControlEvents:UIControlEventTouchDown];
     [self.view addSubview:locateMe];
@@ -124,7 +127,7 @@
     [self addMyParkingLocation];
     
     
-    setParkingView = [[UIView alloc]initWithFrame:CGRectMake(20, 20, self.view.frame.size.width - 40, 70)];
+    setParkingView = [[UIView alloc]initWithFrame:CGRectMake(20, 20 + iPhoneXDeltaCorrection, self.view.frame.size.width - 40, 70)];
     UIButton* button = [UIButton buttonWithType:UIButtonTypeCustom];
     button.frame = CGRectMake(10, 0, setParkingView.frame.size.width - 20, setParkingView.frame.size.height);
     button.titleLabel.font = [UIFont fontWithName:@"Avenir-Bold" size:18];//MyriadPro Cond
@@ -146,8 +149,8 @@
     personCountLabel.text = [NSString stringWithFormat:@"%d",count];
     [personCountLabel sizeToFit];
     NSLog(@"personCountLabel.frame.size.width: %f",(float)personCountLabel.frame.size.width);
-    search.frame = CGRectMake(50, 23, self.view.frame.size.width - 50 - 23 - personImageView.frame.size.width - personCountLabel.frame.size.width, 30);
-    personImageView.frame = CGRectMake(search.frame.origin.x + search.frame.size.width + 6, 25, 20, 27);
+    search.frame = CGRectMake(50, 23 + iPhoneXDeltaCorrection, self.view.frame.size.width - 50 - 22.5 - personImageView.frame.size.width - personCountLabel.frame.size.width, 30);
+    personImageView.frame = CGRectMake(search.frame.origin.x + search.frame.size.width + 6, 25 + iPhoneXDeltaCorrection, 20, 27);
     personCountLabel.frame = CGRectMake(personImageView.frame.origin.x + personImageView.frame.size.width + 5, personImageView.frame.origin.y, personCountLabel.frame.size.width, personImageView.frame.size.height);
     
 }
@@ -472,7 +475,8 @@
     if (!self.userInfo.loggedIn){
         return;
     }
-    
+    [d updateLocation:(locations[locations.count - 1])];
+
     if (mapShouldFollowUser && CLLocationCoordinate2DIsValid(locations[locations.count - 1].coordinate)){
         [self focusMapOnUserLocation];
     }
@@ -555,7 +559,6 @@
             }
         }];
     }
-    [d updateLocation:(locations[locations.count - 1])];
     
     if (lastRegionLocation != nil && [lastRegionLocation distanceFromLocation:locations[locations.count - 1]] > 1000 && locations[locations.count - 1].speed < 10){
         self.userInfo.current_session.region_changed = YES;

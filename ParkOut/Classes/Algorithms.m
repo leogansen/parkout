@@ -54,8 +54,9 @@ static NSString* condition;
             [Utils addToLog:user message:[NSString stringWithFormat:@"1. setting status to PARKING"]];
             
             NSLog(@"setting status to parking");
-            int index = [self findLowestSpeed:user.current_session.user_locations];
-            
+//            int index = [self findLowestSpeed:user.current_session.user_locations];
+            int index = (int)(user.current_session.user_locations.count - 1);// try this instead
+
             for (int i = index; i > 0; i--){
                 [user.current_session.user_locations removeObjectAtIndex:i];
             }
@@ -66,12 +67,6 @@ static NSString* condition;
             
             if ([self speedStaysLow:user.current_session.user_locations pings: 3 * FACTOR]) {//We assume the user parked.
                 
-                //                int index = [self findLowestSpeed:user.current_session.user_locations];
-                int index = (int)(user.current_session.user_locations.count - 1);// try this instead
-                
-                for (int i = index; i > 0; i--){
-                    [user.current_session.user_locations removeObjectAtIndex:i];
-                }
                 
                 if (user.current_session.status == NOT_PARKED) {
                     user.current_session.parking_location = [user.current_session.user_locations[0] coordinate];
@@ -104,6 +99,13 @@ static NSString* condition;
                         [Utils addToLog:user message:@"3. Setting status to NOT_MOVING: distance to car > DISTANCE_DELTA"];
                     }
                     user.current_session.last_significant_location = location.coordinate;
+                }
+                
+                //                int index = [self findLowestSpeed:user.current_session.user_locations];
+                int index = (int)(user.current_session.user_locations.count - 1);// try this instead
+                
+                for (int i = index; i > 0; i--){
+                    [user.current_session.user_locations removeObjectAtIndex:i];
                 }
                 
             }else if ([self speedStaysWalking:user.current_session.user_locations pings: 3 * FACTOR] ||

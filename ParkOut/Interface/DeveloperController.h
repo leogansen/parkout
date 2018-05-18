@@ -19,7 +19,6 @@
     MKMapView* map;
     UILabel* infoLabel;
     UITextView* tv;
-    int badSignalCount;
     UserInfo* userInfo;
 }
 

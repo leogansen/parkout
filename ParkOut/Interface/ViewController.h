@@ -46,6 +46,7 @@
     
     NSMutableArray* addedPins;
     NSMutableArray* previouslyAddedPins;
+    float iPhoneXDeltaCorrection;
     
 }
 //@property (nonatomic, strong) UISearchBar* searchBar;

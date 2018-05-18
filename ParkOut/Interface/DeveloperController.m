@@ -80,17 +80,9 @@
         return;
     }
     NSLog(@"horizontalAccuracy: %f",[location horizontalAccuracy]);
-    if ([location horizontalAccuracy] > 20){
-        badSignalCount++;
-        if (badSignalCount == 30){
-            userInfo.current_session.status = NOT_MOVING;
-        }
-        return;
-    }
-    badSignalCount = 0;
    
     
-    infoLabel.text = [NSString stringWithFormat:@"Speed: %.2f\n Number of Points: %d\n on_feet: %d",location.speed,
+    infoLabel.text = [NSString stringWithFormat:@"Accuracy: %f\nSpeed: %.2f\nNumber of Points: %d\non_feet: %d",location.horizontalAccuracy,location.speed,
                       (int)userInfo.current_session.user_locations.count,userInfo.current_session.on_feet];
     
     if (userInfo.current_session.status == -1){
