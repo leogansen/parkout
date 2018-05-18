@@ -16,7 +16,10 @@
     self = [super init];
     if (self){
         self.current_session = [[ParkingSession alloc]init];
-        self.log = [[NSMutableArray alloc]init];
+        self.log = [[[NSUserDefaults standardUserDefaults]objectForKey:@"user_log"]mutableCopy];
+        if (self.log == nil){
+            self.log = [[NSMutableArray alloc]init];
+        }
         self.username = @"";
         self.password = @"";
         self.email_address = @"";
@@ -63,7 +66,7 @@
 -(id)initWithDictionary:(NSDictionary*)dict{
     if (self = [super init]) {
         self.current_session = [[ParkingSession alloc]init];
-
+        
         self.username = @"";
         if ([dict objectForKey:@"username"] != [NSNull null]){
             self.username = [dict objectForKey:@"username"];
@@ -121,8 +124,11 @@
         
         self.current_session.user_id = self.user_id;
         
-        self.log = [[NSMutableArray alloc]init];
-
+        self.log = [[[NSUserDefaults standardUserDefaults]objectForKey:@"user_log"]mutableCopy];
+        if (self.log == nil){
+            self.log = [[NSMutableArray alloc]init];
+        }
+        
     }
     return self;
 }

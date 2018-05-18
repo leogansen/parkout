@@ -116,5 +116,6 @@
     NSLog(@"MESSAGE: %@",message);
     
     [user.log addObject:message];
+    [[NSUserDefaults standardUserDefaults]setObject:user.log forKey:@"user_log"];
 }
 @end
