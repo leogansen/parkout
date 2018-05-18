@@ -429,7 +429,7 @@
             [Communicator logInWithUsername:[[NSUserDefaults standardUserDefaults]objectForKey:@"username"]  password:[[NSUserDefaults standardUserDefaults]objectForKey:@"password"]  completion:^(NSDictionary* responseDict, BOOL success) {
                 if (success){
                     [self loginSuccess:responseDict];
-                    
+
                 }else{
                     LoginController* lc = [[LoginController alloc]init];
                     if (!lc.isBeingPresented){
@@ -1049,7 +1049,9 @@
         setParkingView.hidden = NO;
         [self performSelector:@selector(hideView:) withObject:setParkingView afterDelay:120];
         self.userInfo.current_session.departing_in = 0;
-        [Communicator postNotification:self.userInfo.user_id message:@"It seems like you've parked. You can now confirm your location." completion:nil];
+        [Communicator postNotification:self.userInfo.user_id message:@"It seems like you've parked. You can now confirm your location." completion:^(BOOL success, BOOL message_exists, NSString *message) {
+            
+        }];
     }else{
         setParkingView.hidden = YES;
     }
