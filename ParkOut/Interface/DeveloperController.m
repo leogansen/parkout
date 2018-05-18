@@ -135,7 +135,7 @@
 
         }
         [mail setMessageBody:message isHTML:NO];
-        [mail setToRecipients:@[@"leogansen@gmail.com"]];
+        [mail setToRecipients:@[@"leogansen@gmail.com",@"david@toolowapp.com"]];
         
         [self presentViewController:mail animated:YES completion:NULL];
     }
