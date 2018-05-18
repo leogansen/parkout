@@ -284,7 +284,6 @@
                 }
                 
                 if ([[responseDict objectForKey:@"parking"] count] > 0){
-                    [self adjustTopBarForUserCount:(int)[[responseDict objectForKey:@"parking"] count]];
                     
                     pinTag++;
                     NSLog(@"Parking found: %d",pinTag);
@@ -296,8 +295,12 @@
                         }
                     }
                 }
+                [self adjustTopBarForUserCount:(int)addedPins.count];
+
+                NSLog(@"addedPins: %d",(int)addedPins.count);
                 [map removeAnnotations:previouslyAddedPins];
                 previouslyAddedPins = [NSMutableArray arrayWithArray:addedPins];
+                [addedPins removeAllObjects];
                 
                 NSLog(@"map after________________: %d",(int)map.annotations.count);
                 for (int i = 0; i < (int)map.annotations.count; i++){
@@ -1042,6 +1045,7 @@
         setParkingView.alpha = 1;
         setParkingView.hidden = NO;
         [self performSelector:@selector(hideView:) withObject:setParkingView afterDelay:120];
+        self.userInfo.current_session.departing_in = 0;
         [Communicator postNotification:self.userInfo.user_id message:@"It seems like you've parked. You can now confirm your location." completion:nil];
     }else{
         setParkingView.hidden = YES;
