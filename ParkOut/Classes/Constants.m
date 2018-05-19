@@ -41,4 +41,5 @@ NSString *const RecoverPassword = baseURL@"RecoverPassword";
 NSString *const UpdateStatus = baseURL@"UpdateStatus";
 NSString *const FetchParkingLocations = baseURL@"FetchParkingLocations";
 NSString *const PostNotification = baseURL@"PostNotification";
+NSString *const UpdateDeviceToken = baseURL@"UpdateDeviceToken";
 

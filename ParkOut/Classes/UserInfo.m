@@ -128,11 +128,7 @@
             self.log = [[NSMutableArray alloc]init];
         }
       
-        self.device_token = @"";
-        if ([dict objectForKey:@"device_token"] != [NSNull null]){
-            self.device_token = [dict objectForKey:@"device_token"];
-            
-        }
+        
         
     }
     return self;

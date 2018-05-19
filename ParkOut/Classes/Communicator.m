@@ -14,7 +14,6 @@
     UserInfo* ui = [[UserInfo alloc]init];
     ui.username = username;
     ui.password = password;
-    ui.device_token = [[NSUserDefaults standardUserDefaults]objectForKey:@"DEVICE_TOKEN"];
     
     NSDictionary* queryDict = [NSDictionary dictionaryWithObjectsAndKeys:
                                ui.userinfo_dictionary,@"userInfo",
@@ -202,11 +201,11 @@
         }
     }];
 }
-+(void)updateUser:(UserInfo*)userInfo{
++(void)updateDeviceToken:(UserInfo*)userInfo{
     NSDictionary* userInfoDict = [NSDictionary dictionaryWithObjectsAndKeys:
                                  userInfo.userinfo_dictionary,@"userInfo",
                                   nil];
-    [self makePostRequest:userInfoDict url:RegisterUser completion:^(NSDictionary*responseDict) {
+    [self makePostRequest:userInfoDict url:UpdateDeviceToken completion:^(NSDictionary*responseDict) {
         
     }];
 }
