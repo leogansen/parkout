@@ -46,7 +46,6 @@
 		B318B49C20A2D53E007EE6F1 /* DeveloperController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DeveloperController.h; sourceTree = "<group>"; };
 		B318B49D20A2D53E007EE6F1 /* DeveloperController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DeveloperController.m; sourceTree = "<group>"; };
 		B324E6F6209B819A0073D557 /* colors.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = colors.png; sourceTree = "<group>"; };
-		B364D51520A55474000ED21B /* ParkOut.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ParkOut.entitlements; sourceTree = "<group>"; };
 		B36DA6562093F8B70065C99B /* SlideMenu.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SlideMenu.h; sourceTree = "<group>"; };
 		B36DA6572093F8B70065C99B /* SlideMenu.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SlideMenu.m; sourceTree = "<group>"; };
 		B36DA6592093F8D60065C99B /* Color.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Color.h; sourceTree = "<group>"; };
@@ -92,6 +91,7 @@
 		B3ED02EA208FC7660081A122 /* Constants.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Constants.m; sourceTree = "<group>"; };
 		B3ED02EC208FC8C90081A122 /* ParkingSession.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ParkingSession.h; sourceTree = "<group>"; };
 		B3ED02ED208FC8C90081A122 /* ParkingSession.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ParkingSession.m; sourceTree = "<group>"; };
+		B3F358F920AFE073004A78DB /* ParkOut.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ParkOut.entitlements; sourceTree = "<group>"; };
 		B3F473D520A8CD690019379D /* CustomPickerView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CustomPickerView.h; sourceTree = "<group>"; };
 		B3F473D620A8CD690019379D /* CustomPickerView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CustomPickerView.m; sourceTree = "<group>"; };
 		B3F473D820AA23600019379D /* user@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "user@3x.png"; sourceTree = "<group>"; };
@@ -174,7 +174,7 @@
 		B3ED02CB208FC1C40081A122 /* ParkOut */ = {
 			isa = PBXGroup;
 			children = (
-				B364D51520A55474000ED21B /* ParkOut.entitlements */,
+				B3F358F920AFE073004A78DB /* ParkOut.entitlements */,
 				B3D5ECD92099881400E69520 /* Designs */,
 				B36DA6552093F8A50065C99B /* Interface */,
 				B3ED02E8208FC6B40081A122 /* Classes */,
@@ -437,14 +437,16 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_ENTITLEMENTS = ParkOut/ParkOut.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = DLY9Z9SKC7;
+				DEVELOPMENT_TEAM = 2JF372PP45;
 				INFOPLIST_FILE = "$(SRCROOT)/ParkOut/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = parking.ParkOut;
+				PRODUCT_BUNDLE_IDENTIFIER = parking.ParkOutApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -456,13 +458,14 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_ENTITLEMENTS = ParkOut/ParkOut.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = DLY9Z9SKC7;
+				DEVELOPMENT_TEAM = 2JF372PP45;
 				INFOPLIST_FILE = "$(SRCROOT)/ParkOut/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = parking.ParkOut;
+				PRODUCT_BUNDLE_IDENTIFIER = parking.ParkOutApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				TARGETED_DEVICE_FAMILY = "1,2";

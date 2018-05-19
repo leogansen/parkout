@@ -500,8 +500,10 @@
     if ([locations[locations.count - 1] horizontalAccuracy] > 60){
         badSignalCount++;
         if (badSignalCount == 30){
-            self.userInfo.current_session.status = NOT_MOVING;
-            [Utils addToLog:self.userInfo message:@"Poor signal - setting status to NOT_MOVING"];
+            if (self.userInfo.current_session.status == PARKED_COMING_BACK || self.userInfo.current_session.status == PARKED_MOVING_AWAY || self.userInfo.current_session.status == PARKED_NOT_IN_RADIUS || self.userInfo.current_session.status == NOT_MOVING){
+                self.userInfo.current_session.status = NOT_MOVING;
+                [Utils addToLog:self.userInfo message:@"Poor signal - setting status to NOT_MOVING"];
+            }
         }
         return;
     }
@@ -811,7 +813,7 @@
         }
     }else if (control.tag == 3){
         NSLog(@"WILL ASK A QUESTION");
-        [Communicator postNotification:[(MapAnnotation*)view.annotation driver_id] message:@"Other users in the area would like to know when you'd be parking out. Please help other users by updating your intentions!" completion:^(BOOL success, BOOL message_exists, NSString *message) {
+        [Communicator postNotification:[(MapAnnotation*)view.annotation driver_id] message:@"Other users in the area would like to know when you'd be parking out. Please help other users by updating your intentions!" type:@"1" completion:^(BOOL success, BOOL message_exists, NSString *message) {
             [mapView deselectAnnotation:view.annotation animated:YES];
             
         }];
@@ -1049,7 +1051,7 @@
         setParkingView.hidden = NO;
         [self performSelector:@selector(hideView:) withObject:setParkingView afterDelay:120];
         self.userInfo.current_session.departing_in = 0;
-        [Communicator postNotification:self.userInfo.user_id message:@"It seems like you've parked. You can now confirm your location." completion:^(BOOL success, BOOL message_exists, NSString *message) {
+        [Communicator postNotification:self.userInfo.user_id message:@"It seems like you've parked. You can now confirm your location."  type:@"2" completion:^(BOOL success, BOOL message_exists, NSString *message) {
             
         }];
     }else{

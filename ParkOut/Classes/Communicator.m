@@ -215,10 +215,11 @@
         }
     }];
 }
-+(void)postNotification:(NSString*)requested_user_id message:(NSString*)message completion:(void (^)(BOOL,BOOL,NSString*))completion{
++(void)postNotification:(NSString*)requested_user_id message:(NSString*)message type:(NSString*)type completion:(void (^)(BOOL,BOOL,NSString*))completion{
     NSDictionary* userInfoDict = [NSDictionary dictionaryWithObjectsAndKeys:
                                   requested_user_id,@"user_id",
                                   message,@"message",
+                                  type,@"notification_id",
                                   nil];
     [self makePostRequest:userInfoDict url:PostNotification completion:^(NSDictionary*responseDict) {
         if (responseDict != nil){

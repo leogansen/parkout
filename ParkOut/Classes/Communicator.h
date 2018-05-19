@@ -18,6 +18,6 @@
 +(void)recoverPasswordWithUserInfo:(UserInfo*)ui completion:(void (^)(BOOL,NSError*))completion;
 +(void)reportStatus:(ParkingSession*)session completion:(void (^)(BOOL,BOOL,NSString*))completion;
 +(void)fetchParkingLocations:(CLLocationCoordinate2D)location userId:(NSString*)user_id latDelta:(float)latDelta lngDelta:(float)lngDelta completion:(void (^)(NSDictionary* ))completion;
-+(void)postNotification:(NSString*)requested_user_id message:(NSString*)message completion:(void (^)(BOOL,BOOL,NSString*))completion;
++(void)postNotification:(NSString*)requested_user_id message:(NSString*)message type:(NSString*)type completion:(void (^)(BOOL,BOOL,NSString*))completion;
 
 @end

@@ -225,6 +225,7 @@ static NSString* condition;
         }
         if (user.current_session.status == PARKING){
             user.current_session.parking_location = location.coordinate;//Override algorithmic idea for now
+            [user.log addObject:[NSString stringWithFormat:@"Setting parking location to: %f,%f",user.current_session.parking_location.latitude,user.current_session.parking_location.longitude]];
         }
         
         NSDictionary* dict = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:user.current_session.status],@"status", nil];
