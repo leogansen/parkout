@@ -48,6 +48,7 @@
     NSMutableArray* previouslyAddedPins;
     float iPhoneXDeltaCorrection;
     
+    UIActivityIndicatorView *activity;
 }
 //@property (nonatomic, strong) UISearchBar* searchBar;
 @property (strong, nonatomic) UserInfo* userInfo;

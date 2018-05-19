@@ -12,7 +12,6 @@
 
 @interface Communicator : NSObject
 
-+(void)validateRegistrationToken:(NSString*)token completion:(void (^)(BOOL))completion;
 +(void)logInWithUsername:(NSString*)username password:(NSString*)password completion:(void (^)(NSDictionary*,BOOL))completion;
 +(void)resendConfirmationEmail:(UserInfo*)ui completion:(void (^)(BOOL,BOOL,NSString*))completion;
 +(void)recoverPasswordWithUserInfo:(UserInfo*)ui completion:(void (^)(BOOL,NSError*))completion;

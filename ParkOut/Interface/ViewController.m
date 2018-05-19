@@ -144,6 +144,10 @@
     [self.view addSubview:setParkingView];
     
     
+    activity = [[UIActivityIndicatorView alloc]initWithFrame:CGRectMake(self.view.frame.size.width / 2 - 25, self.view.frame.size.height / 2 - 25, 50, 50)];
+    [activity startAnimating];
+    activity.transform = CGAffineTransformMakeScale(1.5, 1.5);
+    [activity setColor:[Color appColorMedium]];
 }
 -(void)adjustTopBarForUserCount:(int)count{
     personCountLabel.text = [NSString stringWithFormat:@"%d",count];
@@ -152,6 +156,7 @@
     search.frame = CGRectMake(50, 23 + iPhoneXDeltaCorrection, self.view.frame.size.width - 50 - 22.5 - personImageView.frame.size.width - personCountLabel.frame.size.width, 30);
     personImageView.frame = CGRectMake(search.frame.origin.x + search.frame.size.width + 6, 25 + iPhoneXDeltaCorrection, 20, 27);
     personCountLabel.frame = CGRectMake(personImageView.frame.origin.x + personImageView.frame.size.width + 5, personImageView.frame.origin.y, personCountLabel.frame.size.width, personImageView.frame.size.height);
+ 
     
 }
 -(void)openMenu{
@@ -425,9 +430,15 @@
     //For Testing:
     //    self.userInfo.loggedIn = YES;
     if (!self.userInfo.loggedIn){
+        [self.view addSubview:activity];
+        [self.view bringSubviewToFront:activity];
         if ([[NSUserDefaults standardUserDefaults]objectForKey:@"username"] != nil && [[NSUserDefaults standardUserDefaults]objectForKey:@"password"] != nil){
             [Communicator logInWithUsername:[[NSUserDefaults standardUserDefaults]objectForKey:@"username"]  password:[[NSUserDefaults standardUserDefaults]objectForKey:@"password"]  completion:^(NSDictionary* responseDict, BOOL success) {
+                dispatch_async(dispatch_get_main_queue(), ^(void){
+                    [activity removeFromSuperview];
+                });
                 if (success){
+                    NSLog(@"Logged in");
                     [self loginSuccess:responseDict];
 
                 }else{
@@ -623,43 +634,50 @@
     });
 }
 -(void)slideMenuDidRemoveWithSelection:(NSInteger)selection{
-    if (selection == 0 && self.userInfo.current_session.parking_location.latitude != 0){
-        MKMapCamera *newCamera = [MKMapCamera camera];
-        [newCamera setCenterCoordinate:self.userInfo.current_session.parking_location];
-        [map setCamera:newCamera];
-    }else if (selection == 1){
-        //Update Status
-        //Here, a user specifies his/her plans to unpark the car.
-        if (self.userInfo.current_session.parking_location.latitude == 0){
-            [self simpleAlertViewTitle:@"You don't seem to have parked yet!" message:@"For a parking spot to be generated in the system, you need to first drive a bit, then stop and start walking."];
-        }else{
-            [self departingInAlertViewTitle:@"Help other drivers find a spot - let them know when you plan on leaving your current parking spot!" message:@"Choose one:" tag:0];
+    if (self.userInfo.loggedIn){
+        if (selection == 0 && self.userInfo.current_session.parking_location.latitude != 0){
+            MKMapCamera *newCamera = [MKMapCamera camera];
+            [newCamera setCenterCoordinate:self.userInfo.current_session.parking_location];
+            [map setCamera:newCamera];
+        }else if (selection == 1){
+            //Update Status
+            //Here, a user specifies his/her plans to unpark the car.
+            if (self.userInfo.current_session.parking_location.latitude == 0){
+                [self simpleAlertViewTitle:@"You don't seem to have parked yet!" message:@"For a parking spot to be generated in the system, you need to first drive a bit, then stop and start walking."];
+            }else{
+                [self departingInAlertViewTitle:@"Help other drivers find a spot - let them know when you plan on leaving your current parking spot!" message:@"Choose one:" tag:0];
+            }
+        }else if (selection == 2){
+            InfoViewController* info = [[InfoViewController alloc]initWithTitle:@"About the ParkOut" andContent:[NSString stringWithFormat:@"ParkOut is a user-driven app in which users can see when other users are about to park out of their street parking spots, thus knowing a few minutes ahead of time that a particular parking spot would become available shortly. When users approaches their cars, the car icons on the map become progressively greener. Users cannot see each other's locations, only the locations of other users' cars. GPS location sharing is required use the app."] andUserId:@"" token:@"" enroll:NO dict:nil];
+            [self presentViewController:info animated:YES completion:nil];
+        }else if (selection == 3){
+            //Update Info
+            ManageUserController* muc = [[ManageUserController alloc]initWithUserInfo:self.userInfo];
+            muc.delegate = self;
+            [self presentViewController:muc animated:YES completion:nil];
+        }else if (selection == 4){
+            //Logout
+            NSLog(@"Logout");
+            self.userInfo = [[UserInfo alloc]init];
+            LoginController* lc = [[LoginController alloc]init];
+            if (!lc.isBeingPresented){
+                NSLog(@"Presenting LC");
+                lc.delegate = self;
+                [self presentViewController:lc animated:NO completion:nil];
+            }
+            [[NSUserDefaults standardUserDefaults]removeObjectForKey:@"username"];
+            [[NSUserDefaults standardUserDefaults]removeObjectForKey:@"password"];
+            [timer invalidate];
+            [self stop];
+        }else if (selection == 6){
+            
+            [self presentViewController:d animated:YES completion:nil];
         }
-    }else if (selection == 2){
-        InfoViewController* info = [[InfoViewController alloc]initWithTitle:@"About the ParkOut" andContent:[NSString stringWithFormat:@"ParkOut is a user-driven app in which users can see when other users are about to park out of their street parking spots, thus knowing a few minutes ahead of time that a particular parking spot would become available shortly. When users approaches their cars, the car icons on the map become progressively greener. Users cannot see each other's locations, only the locations of other users' cars. GPS location sharing is required use the app."] andUserId:@"" token:@"" enroll:NO dict:nil];
-        [self presentViewController:info animated:YES completion:nil];
-    }else if (selection == 3){
-        //Update Info
-        ManageUserController* muc = [[ManageUserController alloc]initWithUserInfo:self.userInfo];
-        muc.delegate = self;
-        [self presentViewController:muc animated:YES completion:nil];
-    }else if (selection == 4){
-        //Logout
-        NSLog(@"Logout");
-        self.userInfo = [[UserInfo alloc]init];
-        LoginController* lc = [[LoginController alloc]init];
-        if (!lc.isBeingPresented){
-            NSLog(@"Presenting LC");
-            lc.delegate = self;
-            [self presentViewController:lc animated:NO completion:nil];
+    }else{
+        if (selection == 0){
+            InfoViewController* info = [[InfoViewController alloc]initWithTitle:@"About the ParkOut" andContent:[NSString stringWithFormat:@"ParkOut is a user-driven app in which users can see when other users are about to park out of their street parking spots, thus knowing a few minutes ahead of time that a particular parking spot would become available shortly. When users approaches their cars, the car icons on the map become progressively greener. Users cannot see each other's locations, only the locations of other users' cars. GPS location sharing is required use the app."] andUserId:@"" token:@"" enroll:NO dict:nil];
+            [self presentViewController:info animated:YES completion:nil];
         }
-        [[NSUserDefaults standardUserDefaults]removeObjectForKey:@"username"];
-        [[NSUserDefaults standardUserDefaults]removeObjectForKey:@"password"];
-        [timer invalidate];
-        [self stop];
-    }else if (selection == 6){
-        
-        [self presentViewController:d animated:YES completion:nil];
     }
 }
 -(void)slideMenuDidRemoveWithTask:(NSInteger)task loggedIn:(BOOL)loggedIn{

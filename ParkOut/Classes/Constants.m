@@ -7,7 +7,7 @@
 //
 
 #import "Constants.h"
-#define domainURL @"parkout.us-west-1.elasticbeanstalk.com"
+#define domainURL @"parkoutapp.us-west-1.elasticbeanstalk.com"
 #define wifihost @"192.168.0.115:8080/api"
 #define localhost @"localhost:8080/api"
 

@@ -25,6 +25,8 @@
     UITextField* username;
     UITextField* password;
     SlideMenu* slideMenu;
+    UIActivityIndicatorView *activity;
+
 }
 
 @property(assign,nonatomic) id <LoginControllerDelegate> delegate;

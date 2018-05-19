@@ -141,12 +141,12 @@
 			children = (
 				B3F473DA20AA24570019379D /* location.png */,
 				B3F473D820AA23600019379D /* user@3x.png */,
-				B3AF4EC3209F802B00D7C211 /* menu@3x.png */,
 				B3F473DC20AA261A0019379D /* user.png */,
 				B324E6F6209B819A0073D557 /* colors.png */,
 				B3F473DE20AA29AC0019379D /* person.png */,
 				B3DD6519209E308600C75A2D /* color_cell.png */,
 				B3DD651D209E4CB400C75A2D /* parking@3x.png */,
+				B3AF4EC3209F802B00D7C211 /* menu@3x.png */,
 				B3DD651B209E438B00C75A2D /* locate@3x.png */,
 				B3DD650F209E2D9600C75A2D /* car-position.png */,
 				B3DD6510209E2D9600C75A2D /* car-position@2x.png */,

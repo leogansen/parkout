@@ -9,46 +9,7 @@
 #import "Communicator.h"
 
 @implementation Communicator
-+(void)validateRegistrationToken:(NSString*)token completion:(void (^)(BOOL))completion{
-    NSDictionary* queryDict = [NSDictionary dictionaryWithObjectsAndKeys:
-                               token,@"token",
-                               nil];
-    
-    NSError* jsonerror;
-    NSData* jsonData = [NSJSONSerialization dataWithJSONObject:queryDict
-                                                       options:NSJSONWritingPrettyPrinted error:&jsonerror];
-    NSLog(@"queryDict: %@", queryDict);
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^(void){
-        
-        NSURL *url = [NSURL URLWithString:ValidateRegistrationToken];
-        NSLog(@"URL: %@",ValidateRegistrationToken);
-        NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
-        [request setValue:@"application/json" forHTTPHeaderField:@"Content-type"];
-        [request setHTTPMethod:@"POST"];
-        [request setHTTPBody:jsonData];
-        [request setTimeoutInterval:60];
-        NSError* error = nil;
-        NSURLResponse *response =[[NSURLResponse alloc]init];
-        NSData *data = [NSURLConnection sendSynchronousRequest:request returningResponse:&response error:&error];
-        NSError *jsonParsingError = nil;
-        NSDictionary *responseDict;
-        if (data != nil){
-            responseDict = [NSJSONSerialization JSONObjectWithData:data options:0 error:&jsonParsingError];
-            NSLog(@"responseDict: %@",responseDict);
-            dispatch_async(dispatch_get_main_queue(), ^(void){
-                completion([[responseDict objectForKey:@"success"]boolValue]);
-            });
-            
-        }else{
-            NSLog(@"data is nil");
-            dispatch_async(dispatch_get_main_queue(), ^(void){
-                completion(NO);
-            });
-            
-        }
-        
-    });
-}
+
 +(void)logInWithUsername:(NSString*)username password:(NSString*)password completion:(void (^)(NSDictionary*,BOOL))completion{
     UserInfo* ui = [[UserInfo alloc]init];
     ui.username = username;
@@ -69,7 +30,7 @@
         [request setValue:@"application/json" forHTTPHeaderField:@"Content-type"];
         [request setHTTPMethod:@"POST"];
         [request setHTTPBody:jsonData];
-        [request setTimeoutInterval:60];
+        [request setTimeoutInterval:20];
         NSError* error = nil;
         NSURLResponse *response =[[NSURLResponse alloc]init];
         NSData *data = [NSURLConnection sendSynchronousRequest:request returningResponse:&response error:&error];

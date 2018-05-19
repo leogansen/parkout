@@ -66,6 +66,11 @@
     [createAccount setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
     [scroll addSubview:createAccount];
     
+    activity = [[UIActivityIndicatorView alloc]initWithFrame:CGRectMake(self.view.frame.size.width / 2 - 25, self.view.frame.size.height / 2 - 25, 50, 50)];
+    [activity startAnimating];
+    activity.transform = CGAffineTransformMakeScale(1.5, 1.5);
+    [activity setColor:[Color appColorMedium]];
+    
     UITapGestureRecognizer* touch = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(removeKeyboard)];
     [scroll addGestureRecognizer:touch];
     
@@ -105,7 +110,11 @@
             [self simpleAlertViewTitle:@"Password too short" message:@"Please enter a password with 5 characters or longer" tag:0];
         }else{
             //Login
+            [self.view addSubview:activity];
             [Communicator logInWithUsername:username.text password:password.text completion:^(NSDictionary* responseDict, BOOL success) {
+                dispatch_async(dispatch_get_main_queue(), ^(void){
+                    [activity removeFromSuperview];
+                });
                 if (success){
                     NSLog(@"responseDict: %@",responseDict);
                     self.userInfo = [[UserInfo alloc]initWithDictionary:[responseDict objectForKey:@"userInfo"]];
