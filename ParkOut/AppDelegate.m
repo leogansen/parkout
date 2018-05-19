@@ -132,6 +132,9 @@ didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)devToken {
     devTokenBytes              = [devTokenBytes stringByReplacingOccurrencesOfString:@" " withString:@""];
     // save device token
     [[NSUserDefaults standardUserDefaults]setObject:devTokenBytes forKey:@"DEVICE_TOKEN"];
+
+    [viewController setUpView];
+    
     // Forward the token to your provider, using a custom method.
     NSLog(@"Device token: %@",devTokenBytes);//devTokenBytes
 }

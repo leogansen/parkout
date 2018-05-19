@@ -56,6 +56,6 @@
 @property (strong, nonatomic) CMMotionManager *motionManager;
 
 -(void)updateIntentions;
-
+-(void)setUpView;
 @end
 

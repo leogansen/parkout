@@ -10,7 +10,7 @@
 
 @implementation UserInfo
 
-@synthesize current_session,log,email_address,first_name,last_name,loggedIn,password,token,user_id,username,middle_name,suffix,title,vehicle_make;
+@synthesize current_session,log,email_address,first_name,last_name,loggedIn,password,token,user_id,username,middle_name,suffix,title,vehicle_make,device_token;
 
 -(id)init{
     self = [super init];
@@ -33,6 +33,7 @@
         self.suffix = @"";
         self.loggedIn = NO;
         self.vehicle_make = @"";
+        self.device_token = @"";
     }
     return self;
 }
@@ -56,8 +57,8 @@
         self.middle_name = user.middle_name;
         self.suffix = user.suffix;
         self.loggedIn = user.loggedIn;
-        self.current_session.user_id = self.user_id;
-        self.vehicle_make = self.vehicle_make;
+        self.vehicle_make = user.vehicle_make;
+        self.device_token = user.device_token;
     }
     return self;
 }
@@ -65,7 +66,7 @@
 
 -(id)initWithDictionary:(NSDictionary*)dict{
     if (self = [super init]) {
-        self.current_session = [[ParkingSession alloc]init];
+        self.current_session = [[ParkingSession alloc]initWithPSDictionary:[dict objectForKey:@"current_session"]];
         
         self.username = @"";
         if ([dict objectForKey:@"username"] != [NSNull null]){
@@ -122,11 +123,15 @@
             
         }
         
-        self.current_session.user_id = self.user_id;
-        
         self.log = [[[NSUserDefaults standardUserDefaults]objectForKey:@"user_log"]mutableCopy];
         if (self.log == nil){
             self.log = [[NSMutableArray alloc]init];
+        }
+      
+        self.device_token = @"";
+        if ([dict objectForKey:@"device_token"] != [NSNull null]){
+            self.device_token = [dict objectForKey:@"device_token"];
+            
         }
         
     }

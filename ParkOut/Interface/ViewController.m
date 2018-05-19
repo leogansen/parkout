@@ -346,6 +346,7 @@
     NSLog(@"Logged IN");
     NSLog(@"responseDict: %@",responseDict);
     self.userInfo = [[UserInfo alloc]initWithDictionary:[responseDict objectForKey:@"userInfo"]];
+    self.userInfo.device_token = [[NSUserDefaults standardUserDefaults]objectForKey:@"DEVICE_TOKEN"];
     //Developer
     d = [[DeveloperController alloc]initWithUserInfo:self.userInfo];
     
@@ -422,7 +423,7 @@
     if ([self.locationManager respondsToSelector:@selector(requestAlwaysAuthorization)]) {
         [self.locationManager requestAlwaysAuthorization];
     }
-    [self setUpView];
+//    [self setUpView];
     //    [self adjustTopBarForUserCount:1000];
 }
 -(void)setUpView{
