@@ -42,4 +42,4 @@ NSString *const UpdateStatus = baseURL@"UpdateStatus";
 NSString *const FetchParkingLocations = baseURL@"FetchParkingLocations";
 NSString *const PostNotification = baseURL@"PostNotification";
 NSString *const UpdateDeviceToken = baseURL@"UpdateDeviceToken";
-
+NSString *const AppInfo = @"ParkOut is a driver-driven app in which drivers can see when and where other drivers are about to park out of their street parking spots, thus knowing a few minutes ahead of time that a particular parking spot would become available. When a driver approached his/her car, the corresponding car icon on the map become progressively greener. Driver cannots see each other's locations, only the locations of other drivers' cars. Drivers can send anonymous push notifications to request the driver of a particular car to update when he/she is planning to unpark. GPS location sharing is required use the app.";

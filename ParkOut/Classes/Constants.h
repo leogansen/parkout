@@ -36,3 +36,5 @@ FOUNDATION_EXPORT NSString *const UpdateStatus;
 FOUNDATION_EXPORT NSString *const FetchParkingLocations;
 FOUNDATION_EXPORT NSString *const PostNotification;
 FOUNDATION_EXPORT NSString *const UpdateDeviceToken;
+FOUNDATION_EXPORT NSString *const AppInfo;
+

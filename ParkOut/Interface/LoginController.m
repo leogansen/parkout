@@ -310,7 +310,7 @@
 }
 -(void)slideMenuDidRemoveWithSelection:(NSInteger)selection{
     if (selection == 0){
-        InfoViewController* info = [[InfoViewController alloc]initWithTitle:@"About the ParkOut" andContent:[NSString stringWithFormat:@"ParkOut is a user-driven app in which users can see when other users are about to park out of their street parking spots, thus knowing a few minutes ahead of time that a particular parking spot would become available shortly. When users approaches their cars, the car icons on the map become progressively greener. Users cannot see each other's locations, only the locations of other users' cars. GPS location sharing is required use the app."] andUserId:@"" token:@"" enroll:NO dict:nil];
+        InfoViewController* info = [[InfoViewController alloc]initWithTitle:@"About the ParkOut" andContent:AppInfo andUserId:@"" token:@"" enroll:NO dict:nil];
         [self presentViewController:info animated:YES completion:nil];
     }
 }
