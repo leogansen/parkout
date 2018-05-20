@@ -33,22 +33,22 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view.
     
-    self.view.backgroundColor = [UIColor lightGrayColor];
+    self.view.backgroundColor = [UIColor whiteColor];
     scrollView = [[UIScrollView alloc]initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height - 69)];
     self.scrollView.backgroundColor = [UIColor whiteColor];
     [self.view addSubview:self.scrollView];
     
     
-    UILabel* bottomLabel = [[UILabel alloc]initWithFrame:CGRectMake(0, self.view.frame.size.height-70, self.view.frame.size.width, 70)];
-    bottomLabel.backgroundColor = [Color appColorLight];
-    [self.view addSubview:bottomLabel];
-    
+//    UILabel* bottomLabel = [[UILabel alloc]initWithFrame:CGRectMake(0, self.view.frame.size.height-70, self.view.frame.size.width, 70)];
+//    bottomLabel.backgroundColor = [Color appColorLight];
+//    [self.view addSubview:bottomLabel];
+//
   
     UIButton *dismiss = [UIButton buttonWithType:UIButtonTypeCustom];
-    dismiss.frame =  CGRectMake(14, self.view.frame.size.height-54, 50, 38);
-    dismiss.titleLabel.textColor = [UIColor whiteColor];
-    [dismiss setTitle:@"‹⃝" forState:UIControlStateNormal];
-    dismiss.titleLabel.font = [UIFont fontWithName:@"AvenirNext-DemiBold" size:40];
+    dismiss.frame =  CGRectMake(14, self.view.frame.size.height-54, 90, 38);
+    [dismiss setTitleColor:[Color appColorMedium2] forState:UIControlStateNormal];
+    [dismiss setTitle:@"Go Back" forState:UIControlStateNormal];
+    dismiss.titleLabel.font = [UIFont fontWithName:@"AvenirNext-DemiBold" size:22];
     [dismiss addTarget:self action:@selector(dismissThisController) forControlEvents:UIControlEventTouchDown];
     [self.view addSubview:dismiss];
     
