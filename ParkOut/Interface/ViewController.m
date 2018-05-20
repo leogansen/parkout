@@ -398,6 +398,7 @@
     
     //Other cases require the location signal to begin. They are in Algorithms
     
+    self.userInfo.current_session.prevStatus = self.userInfo.current_session.status;
     
     [self start];
     

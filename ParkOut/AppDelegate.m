@@ -67,6 +67,7 @@
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {
     // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
+
     [[UIApplication sharedApplication] setApplicationIconBadgeNumber: 0];
 }
 
@@ -153,7 +154,9 @@ didFailToRegisterForRemoteNotificationsWithError:(NSError *)err {
     if ([[userInfo objectForKey:@"id"] intValue] == 1){
         [viewController updateIntentions];
     }
-    
+    if ([[UIApplication sharedApplication] applicationIconBadgeNumber] > 0){
+        [[UIApplication sharedApplication] setApplicationIconBadgeNumber: 1];
+    }
 }
 
 //Called when a notification is delivered to a foreground app.
