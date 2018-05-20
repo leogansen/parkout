@@ -273,7 +273,7 @@
                         //This is also handled by the algorithms, but just in case:
                         //if user was 50 meters or more away from car when he unparked, we don't show an empty spot:
                         if (session.parking_location.latitude != 0 &&
-                            ([[NSDate date] timeIntervalSince1970] * (long)1000) - session.timestamp < 30000 && session.distance_from_car < 50){
+                            ([[NSDate date] timeIntervalSince1970] * (long)1000) - session.timestamp < 30000 && session.distance_from_car < 1000){
                             parkingPlace.name = @"DRIVER LEFT";
                             parkingPlace.description = @"(open space)";
                             [map addAnnotation:parkingAnnotation];

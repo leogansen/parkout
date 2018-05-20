@@ -4,15 +4,8 @@
 <dict>
 	<key>SchemeUserState</key>
 	<dict>
-		<key>ParkOut 2.xcscheme</key>
-		<dict>
-			<key>orderHint</key>
-			<integer>1</integer>
-		</dict>
 		<key>ParkOut.xcscheme</key>
 		<dict>
-			<key>isShown</key>
-			<false/>
 			<key>orderHint</key>
 			<integer>0</integer>
 		</dict>

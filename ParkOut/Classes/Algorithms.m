@@ -24,11 +24,7 @@ static NSString* condition;
     
     
     //User shut off the app while the status was PARKING. He has a spot, but he may have moved away from it. He turns the app back on. If he is further than DELTA, we he is not longer parking, so we default to NOT_MOVING
-    //    if (self.userInfo.current_session.status == PARKING){
-    //        if (Algorithms distanceFrom:self.c to:<#(CLLocationCoordinate2D)#>)
-    //            }
-    //}
-    //}
+
     if ([location speed] > DRIVING_SPEED || ([location speed] > RUNNING_SPEED && !user.current_session.on_feet)) {
         if ([self speedStaysDriving:user.current_session.user_locations pings: 2 * FACTOR]){
             user.current_session.status = NOT_PARKED;
@@ -235,7 +231,7 @@ static NSString* condition;
         user.current_session.prevStatus = user.current_session.status;
         
         
-    }else if (user.current_session.status == NOT_PARKED && ([[NSDate date] timeIntervalSince1970] * (long)1000) - user.current_session.timestamp < 30000 && user.current_session.distance_from_car < 50){
+    }else if (user.current_session.status == NOT_PARKED && ([[NSDate date] timeIntervalSince1970] * (long)1000) - user.current_session.timestamp > 30000){
         user.current_session.parking_location = CLLocationCoordinate2DMake(0, 0);
         //we remove this from the system only after 30 seconds. For the user himself, it disappears from the defaults right away
         [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"parking_location_lat"];
