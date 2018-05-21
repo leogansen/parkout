@@ -69,6 +69,11 @@
     // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
 
     [[UIApplication sharedApplication] setApplicationIconBadgeNumber: 0];
+    if (![CLLocationManager locationServicesEnabled] || [CLLocationManager authorizationStatus] != kCLAuthorizationStatusAuthorizedAlways){
+        [viewController showErrorController];
+    }else{
+        [viewController hideErrorController];
+    }
 }
 
 
@@ -108,7 +113,7 @@
 }
 
 - (void)registerForRemoteNotifications {
-    if(SYSTEM_VERSION_GRATERTHAN_OR_EQUALTO(@"10.0")){
+    if(@available(iOS 10.0, *)){
         UNUserNotificationCenter *center = [UNUserNotificationCenter currentNotificationCenter];
         center.delegate = self;
         [center requestAuthorizationWithOptions:(UNAuthorizationOptionSound | UNAuthorizationOptionAlert | UNAuthorizationOptionBadge) completionHandler:^(BOOL granted, NSError * _Nullable error){
@@ -154,13 +159,15 @@ didFailToRegisterForRemoteNotificationsWithError:(NSError *)err {
     if ([[userInfo objectForKey:@"id"] intValue] == 1){
         [viewController updateIntentions];
     }
+
     if ([[UIApplication sharedApplication] applicationIconBadgeNumber] > 0){
         [[UIApplication sharedApplication] setApplicationIconBadgeNumber: 1];
     }
+
 }
 
 //Called when a notification is delivered to a foreground app.
--(void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions options))completionHandler{
+-(void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler:(void (^)(UNNotificationPresentationOptions options))completionHandler API_AVAILABLE(ios(10.0)){
     NSLog(@"User Info : %@",notification.request.content.userInfo);
     completionHandler(UNAuthorizationOptionSound | UNAuthorizationOptionAlert | UNAuthorizationOptionBadge);
     NSLog(@"ID: %d",[[notification.request.content.userInfo objectForKey:@"id"] intValue]);
@@ -168,10 +175,13 @@ didFailToRegisterForRemoteNotificationsWithError:(NSError *)err {
         NSLog(@"Will update intentions");
         [viewController updateIntentions];
     }
+    if ([[UIApplication sharedApplication] applicationIconBadgeNumber] > 0){
+        [[UIApplication sharedApplication] setApplicationIconBadgeNumber: 1];
+    }
 }
 
 //Called to let your app know which action was selected by the user for a given notification.
--(void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void(^)(void))completionHandler{
+-(void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void(^)(void))completionHandler API_AVAILABLE(ios(10.0)){
     NSLog(@"User Info : %@",response.notification.request.content.userInfo);
     completionHandler();
     NSLog(@"ID: %d",[[response.notification.request.content.userInfo objectForKey:@"id"] intValue]);
@@ -179,5 +189,9 @@ didFailToRegisterForRemoteNotificationsWithError:(NSError *)err {
         NSLog(@"Will update intentions");
         [viewController updateIntentions];
     }
+    if ([[UIApplication sharedApplication] applicationIconBadgeNumber] > 0){
+        [[UIApplication sharedApplication] setApplicationIconBadgeNumber: 1];
+    }
+
 }
 @end

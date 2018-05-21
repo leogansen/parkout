@@ -23,6 +23,8 @@
         algo = [[Algorithms alloc]init];
         addedPins = [NSMutableArray array];
         previouslyAddedPins = [NSMutableArray array];
+        errorController = [[ErrorViewController alloc]init];
+        errorController.delegate = self;
         //        userInfo.current_session.status = UNASSIGNED;
         userInfo.current_session.status = [[[NSUserDefaults standardUserDefaults] valueForKey:@"status"]intValue];
         
@@ -159,6 +161,20 @@
  
     
 }
+-(void)showErrorController{
+    NSLog(@"showErrorController");
+
+    if (![errorController presentingViewController]){
+        [self presentViewController:errorController animated:YES completion:nil];
+    }
+}
+-(void)hideErrorController{
+    NSLog(@"hideErrorController");
+    if ([errorController presentingViewController]){
+        NSLog(@"hiding");
+        [self dismissViewControllerAnimated:YES completion:nil];
+    }
+}
 -(void)openMenu{
     SlideMenu* menu = nil;
     
@@ -256,6 +272,9 @@
                             parkingPlace.description = [NSString stringWithFormat:@"Driver plans on leaving in %@%d minutes",adjustment,(int)minutesLeft];
                             parkingPlace.user_intention_set = YES;
                         }
+                    }else if (session.status == -1){
+                        parkingPlace.name = @"DRIVER LEFT";
+                        parkingPlace.description = @"(open space)";
                     }else{
                         parkingPlace.name = [NSString stringWithFormat:@"LEAVING IN"];
                         parkingPlace.description = [self formatPinTime:(int)session.distance_from_car];
@@ -272,18 +291,17 @@
                     if (session.status == -1){
                         //This is also handled by the algorithms, but just in case:
                         //if user was 50 meters or more away from car when he unparked, we don't show an empty spot:
+                        NSLog(@"***spot of interest: %lf",([[NSDate date] timeIntervalSince1970] * (long)1000 - session.timestamp));
+
                         if (session.parking_location.latitude != 0 &&
                             ([[NSDate date] timeIntervalSince1970] * (long)1000) - session.timestamp < 30000 && session.distance_from_car < 1000){
-                            parkingPlace.name = @"DRIVER LEFT";
-                            parkingPlace.description = @"(open space)";
+                            [addedPins addObject:parkingAnnotation];
                             [map addAnnotation:parkingAnnotation];
                         }
                     }else{
-                        [addedPins addObject:parkingAnnotation];
-                        
+                        [addedPins addObject:parkingAnnotation];                        
                         [map addAnnotation:parkingAnnotation];
                         NSLog(@"-- Adding annotation: Pin: tag: %d removable tag: %d user_id: %@",parkingAnnotation.tag,pinTag - 1,parkingAnnotation.driver_id);
-                        //                        NSLog(@"selectedAnnotationId: %@ user_id: %@",selectedAnnotationId,session.user_id);
                         if ([selectedAnnotationId isEqualToString:session.user_id]){
                             [map selectAnnotation:parkingAnnotation animated:NO];
                             [currentAnnotations removeAllObjects];
@@ -343,6 +361,7 @@
     [self loginSuccess:responseDict];
 }
 -(void)loginSuccess:(NSDictionary*)responseDict{
+    
     NSLog(@"Logged IN");
     NSLog(@"responseDict: %@",responseDict);
     self.userInfo = [[UserInfo alloc]initWithDictionary:[responseDict objectForKey:@"userInfo"]];
@@ -416,6 +435,11 @@
     //Do something
     
     [self locate];
+    
+    if (![CLLocationManager locationServicesEnabled] || [CLLocationManager authorizationStatus] != kCLAuthorizationStatusAuthorizedAlways){
+        [self presentViewController:errorController animated:YES completion:nil];
+    }
+    
 }
 
 -(void)viewDidAppear:(BOOL)animated{
@@ -636,10 +660,14 @@
 }
 -(void)slideMenuDidRemoveWithSelection:(NSInteger)selection{
     if (self.userInfo.loggedIn){
-        if (selection == 0 && self.userInfo.current_session.parking_location.latitude != 0){
-            MKMapCamera *newCamera = [MKMapCamera camera];
-            [newCamera setCenterCoordinate:self.userInfo.current_session.parking_location];
-            [map setCamera:newCamera];
+        if (selection == 0){
+            if (self.userInfo.current_session.parking_location.latitude == 0){
+                [self simpleAlertViewTitle:@"You don't seem to have parked yet!" message:@"For a parking spot to be generated in the system, you need to first drive a bit, then stop and start walking."];
+            }else{
+                MKMapCamera *newCamera = [MKMapCamera camera];
+                [newCamera setCenterCoordinate:self.userInfo.current_session.parking_location];
+                [map setCamera:newCamera];
+            }
         }else if (selection == 1){
             //Update Status
             //Here, a user specifies his/her plans to unpark the car.
@@ -1142,5 +1170,21 @@
     }
     return formattedTime;
 }
-
+-(void)errorControllerSignedOut{
+    [self dismissViewControllerAnimated:YES completion:^{
+        //Logout
+        NSLog(@"Logout");
+        self.userInfo = [[UserInfo alloc]init];
+        LoginController* lc = [[LoginController alloc]init];
+        if (!lc.isBeingPresented){
+            NSLog(@"Presenting LC");
+            lc.delegate = self;
+            [self presentViewController:lc animated:NO completion:nil];
+        }
+        [[NSUserDefaults standardUserDefaults]removeObjectForKey:@"username"];
+        [[NSUserDefaults standardUserDefaults]removeObjectForKey:@"password"];
+        [timer invalidate];
+        [self stop];
+    }];
+}
 @end

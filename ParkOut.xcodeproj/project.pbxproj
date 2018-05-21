@@ -35,6 +35,7 @@
 		B3ED02E7208FC6A10081A122 /* UserInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = B3ED02E6208FC6A10081A122 /* UserInfo.m */; };
 		B3ED02EB208FC7660081A122 /* Constants.m in Sources */ = {isa = PBXBuildFile; fileRef = B3ED02EA208FC7660081A122 /* Constants.m */; };
 		B3ED02EE208FC8C90081A122 /* ParkingSession.m in Sources */ = {isa = PBXBuildFile; fileRef = B3ED02ED208FC8C90081A122 /* ParkingSession.m */; };
+		B3F358FC20B22AC9004A78DB /* ErrorViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B3F358FB20B22AC9004A78DB /* ErrorViewController.m */; };
 		B3F473D720A8CD690019379D /* CustomPickerView.m in Sources */ = {isa = PBXBuildFile; fileRef = B3F473D620A8CD690019379D /* CustomPickerView.m */; };
 		B3F473D920AA23600019379D /* user@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = B3F473D820AA23600019379D /* user@3x.png */; };
 		B3F473DB20AA24570019379D /* location.png in Resources */ = {isa = PBXBuildFile; fileRef = B3F473DA20AA24570019379D /* location.png */; };
@@ -92,6 +93,8 @@
 		B3ED02EC208FC8C90081A122 /* ParkingSession.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ParkingSession.h; sourceTree = "<group>"; };
 		B3ED02ED208FC8C90081A122 /* ParkingSession.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ParkingSession.m; sourceTree = "<group>"; };
 		B3F358F920AFE073004A78DB /* ParkOut.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ParkOut.entitlements; sourceTree = "<group>"; };
+		B3F358FA20B22AC9004A78DB /* ErrorViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ErrorViewController.h; sourceTree = "<group>"; };
+		B3F358FB20B22AC9004A78DB /* ErrorViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ErrorViewController.m; sourceTree = "<group>"; };
 		B3F473D520A8CD690019379D /* CustomPickerView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CustomPickerView.h; sourceTree = "<group>"; };
 		B3F473D620A8CD690019379D /* CustomPickerView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CustomPickerView.m; sourceTree = "<group>"; };
 		B3F473D820AA23600019379D /* user@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "user@3x.png"; sourceTree = "<group>"; };
@@ -114,6 +117,8 @@
 		B36DA6552093F8A50065C99B /* Interface */ = {
 			isa = PBXGroup;
 			children = (
+				B3F358FA20B22AC9004A78DB /* ErrorViewController.h */,
+				B3F358FB20B22AC9004A78DB /* ErrorViewController.m */,
 				B3936BA52096FD6F00ADE8E4 /* InfoViewController.h */,
 				B3936BA62096FD6F00ADE8E4 /* InfoViewController.m */,
 				B3936B9F2096FA4200ADE8E4 /* LoginController.h */,
@@ -304,6 +309,7 @@
 				B3ED02D1208FC1C40081A122 /* ViewController.m in Sources */,
 				B3936BA12096FA4200ADE8E4 /* LoginController.m in Sources */,
 				B3936B9D2096F1C300ADE8E4 /* ManageUserController.m in Sources */,
+				B3F358FC20B22AC9004A78DB /* ErrorViewController.m in Sources */,
 				B3DD6518209E2F9000C75A2D /* TableCellLabel.m in Sources */,
 				B3D5ECDC20998A9F00E69520 /* Utils.m in Sources */,
 				B3ED02EE208FC8C90081A122 /* ParkingSession.m in Sources */,

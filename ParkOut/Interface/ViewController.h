@@ -18,8 +18,9 @@
 #import "SlideUpDrawer.h"
 #import "DeveloperController.h"
 #import "Constants.h"
+#import "ErrorViewController.h"
 
-@interface ViewController : UIViewController <CLLocationManagerDelegate,MKMapViewDelegate,SlideMenuDelegate,UIGestureRecognizerDelegate,LoginControllerDelegate,SlideUpDrawerDelegate,ManageUserControllerDelegate,UISearchBarDelegate,UITextFieldDelegate> {
+@interface ViewController : UIViewController <CLLocationManagerDelegate,MKMapViewDelegate,SlideMenuDelegate,UIGestureRecognizerDelegate,LoginControllerDelegate,SlideUpDrawerDelegate,ManageUserControllerDelegate,UISearchBarDelegate,UITextFieldDelegate,ErrorViewControllerDelegate> {
     Algorithms* algo;
     MKMapView* map;
     CLLocationCoordinate2D carLocation;
@@ -49,6 +50,8 @@
     float iPhoneXDeltaCorrection;
     
     UIActivityIndicatorView *activity;
+    ErrorViewController* errorController;
+
 }
 //@property (nonatomic, strong) UISearchBar* searchBar;
 @property (strong, nonatomic) UserInfo* userInfo;
@@ -57,5 +60,7 @@
 
 -(void)updateIntentions;
 -(void)setUpView;
+-(void)showErrorController;
+-(void)hideErrorController;
 @end
 

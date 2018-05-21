@@ -45,18 +45,20 @@
         [registerUser setTitle:buttonTitle forState:UIControlStateNormal];
         registerUser.frame = CGRectMake(self.view.frame.size.width - 90, self.view.frame.size.height - 60, 80, 50);
         registerUser.titleLabel.font = [UIFont fontWithName:@"AvenirNext-DemiBold" size:20];
-        [registerUser setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+        [registerUser setTitleColor:[Color appColorMedium2] forState:UIControlStateNormal];
         [registerUser addTarget:self action:@selector(registerUser) forControlEvents:UIControlEventTouchDown];
         [self.view addSubview:registerUser];
         
         customPicker = [[CustomPickerView alloc]initWithArray:self.vehicleMakes frame:CGRectMake(0, self.view.frame.size.height - 200, self.view.frame.size.width, 200)];
         customPicker.delegate = self;
+    
         customPicker.hidden = YES;
         [self.view addSubview:customPicker];
         
     }
     return self;
 }
+
 -(void)setupView{
     
     self.view.backgroundColor = [UIColor whiteColor];
@@ -92,9 +94,9 @@
         [scroll addSubview:passwordLabel];
 
         UIButton* changePassword = [UIButton buttonWithType:UIButtonTypeCustom];
-        changePassword.frame = CGRectMake(self.view.frame.size.width - 120, passwordLabel.frame.origin.y, 110,passwordLabel.frame.size.height);
-        [changePassword setTitle:@"Change" forState:UIControlStateNormal];
-        [changePassword setTitleColor:[UIColor blueColor] forState:UIControlStateNormal];
+        changePassword.frame = CGRectMake(self.view.frame.size.width - 170, passwordLabel.frame.origin.y, 160,passwordLabel.frame.size.height);
+        [changePassword setTitle:@"Change Password" forState:UIControlStateNormal];
+        [changePassword setTitleColor:[Color appColorDark] forState:UIControlStateNormal];
         changePassword.titleLabel.font = [UIFont fontWithName:@"GillSans-BoldItalic" size:16];
         [changePassword addTarget:self action:@selector(setNewPassword) forControlEvents:UIControlEventTouchDown];
         [scroll addSubview:changePassword];
@@ -209,7 +211,7 @@
     
     UIButton *dismiss = [UIButton buttonWithType:UIButtonTypeCustom];
     dismiss.frame = CGRectMake(14, self.view.frame.size.height-54, 80, 38);
-    [dismiss setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+    [dismiss setTitleColor:[Color appColorMedium2] forState:UIControlStateNormal];
     [dismiss setTitle:@"Go Back" forState:UIControlStateNormal];
     dismiss.titleLabel.font = [UIFont fontWithName:@"AvenirNext-DemiBold" size:20];
     [dismiss addTarget:self action:@selector(dismissThisController) forControlEvents:UIControlEventTouchDown];
@@ -227,12 +229,8 @@
 }
 -(void)hidePicker{
     customPicker.hidden = YES;
-    
 }
 
--(void)customPickerViewDidSelectRow:(NSInteger)row{
-    
-}
 
 
 
@@ -368,11 +366,13 @@
     [textField resignFirstResponder];
     
 }
-
--(void)customPickerShouldCloseWithRow:(NSInteger)row{
+-(void)customPickerViewDidSelectRow:(NSInteger)row{
     if (row == 0){
         vehicleMake.text = @"";
-    }else{
+    }
+}
+-(void)customPickerShouldCloseWithRow:(NSInteger)row{
+    if (row != 0){
         vehicleMake.text = self.vehicleMakes[row];
     }
     [self hidePicker];
