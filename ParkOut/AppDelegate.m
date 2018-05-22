@@ -129,8 +129,19 @@
     }
     else {
         // Code for old versions
+        UIUserNotificationSettings *settings = [UIUserNotificationSettings settingsForTypes:(UIUserNotificationTypeBadge
+                                                                                             |UIUserNotificationTypeSound
+                                                                                             |UIUserNotificationTypeAlert) categories:nil];
+        [[UIApplication sharedApplication] registerUserNotificationSettings:settings];
     }
 }
+#ifdef __IPHONE_8_0
+- (void)application:(UIApplication *)application didRegisterUserNotificationSettings:(UIUserNotificationSettings *)notificationSettings
+{
+    //register to receive notifications
+    [application registerForRemoteNotifications];
+}
+#endif
 // Handle remote notification registration.
 - (void)application:(UIApplication *)app
 didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)devToken {
@@ -194,4 +205,6 @@ didFailToRegisterForRemoteNotificationsWithError:(NSError *)err {
     }
 
 }
+
+
 @end

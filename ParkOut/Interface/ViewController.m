@@ -18,7 +18,6 @@
 {
     if ((self = [super initWithNibName:nibNameOrNil bundle:bundleOrNil]))
     {
-        
         userInfo = [[UserInfo alloc]init];
         algo = [[Algorithms alloc]init];
         addedPins = [NSMutableArray array];
@@ -292,7 +291,9 @@
                         //This is also handled by the algorithms, but just in case:
                         //if user was 50 meters or more away from car when he unparked, we don't show an empty spot:
                         NSLog(@"***spot of interest: %lf",([[NSDate date] timeIntervalSince1970] * (long)1000 - session.timestamp));
-
+                        [self.userInfo.log addObject:[NSString stringWithFormat:@"***Driver is leaving. Time difference: %lf. Now: %lf. Timestamp: %ld Distance from car: %f",
+                                                      ([[NSDate date] timeIntervalSince1970] * (long)1000 - session.timestamp),[[NSDate date] timeIntervalSince1970],session.timestamp,session.distance_from_car]];
+                        
                         if (session.parking_location.latitude != 0 &&
                             ([[NSDate date] timeIntervalSince1970] * (long)1000) - session.timestamp < 30000 && session.distance_from_car < 1000){
                             [addedPins addObject:parkingAnnotation];
@@ -366,6 +367,7 @@
     NSLog(@"responseDict: %@",responseDict);
     self.userInfo = [[UserInfo alloc]initWithDictionary:[responseDict objectForKey:@"userInfo"]];
     self.userInfo.device_token = [[NSUserDefaults standardUserDefaults] objectForKey:@"DEVICE_TOKEN"];
+    self.userInfo.current_session.timestamp = [[[NSUserDefaults standardUserDefaults]objectForKey:@"timestamp"]longValue];
     //Developer
     d = [[DeveloperController alloc]initWithUserInfo:self.userInfo];
     
@@ -523,15 +525,13 @@
         mapShouldFollowUser = NO;
         
         [map removeAnnotations:map.annotations];
-        
-        [[NSUserDefaults standardUserDefaults]setObject:[NSNumber numberWithDouble:self.userInfo.current_session.parking_location.latitude] forKey:@"parking_location_lat"];
-        [[NSUserDefaults standardUserDefaults]setObject:[NSNumber numberWithDouble:self.userInfo.current_session.parking_location.longitude] forKey:@"parking_location_lng"];
+
         [self addMyParkingLocation];
         //        [self checkIfLocationIsValid:self.userInfo.current_session.parking_location];
-        
+
+        carLocation = self.userInfo.current_session.parking_location;
     }
     
-    carLocation = self.userInfo.current_session.parking_location;
     
     if ([locations[locations.count - 1] horizontalAccuracy] > 60){
         badSignalCount++;
@@ -561,31 +561,26 @@
         
         [Utils addToLog:userInfo message:[NSString stringWithFormat:@"Top. setting status to UNASSIGNED"]];
         
-        userInfo.current_session.parking_location = CLLocationCoordinate2DMake(0, 0);
+        self.userInfo.current_session.parking_location = CLLocationCoordinate2DMake(0, 0);
         [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"parking_location_lat"];
         [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"parking_location_lng"];
     }
     
     signalStarted = YES;
     
+    //Simplify later:
     ParkingSession* currentSession = [[ParkingSession alloc]init];
-    currentSession.parking_location = carLocation;
+    currentSession.parking_location = self.userInfo.current_session.parking_location;
     currentSession.speed = locations[locations.count - 1].speed;
     currentSession.user_location = locations[locations.count - 1].coordinate;
     currentSession.status = status;
     currentSession.departure_plan_timestamp = self.userInfo.current_session.departure_plan_timestamp;
     currentSession.departing_in = self.userInfo.current_session.departing_in;
     currentSession.user_id = self.userInfo.user_id;
-    CLLocation* car = [[CLLocation alloc]initWithLatitude:carLocation.latitude longitude:carLocation.longitude];
+    currentSession.timestamp = self.userInfo.current_session.timestamp;
+    CLLocation* car = [[CLLocation alloc]initWithLatitude:self.userInfo.current_session.parking_location.latitude longitude:self.userInfo.current_session.parking_location.longitude];
     
-    if (status == -1){
-        //We remember the distance between the user and the car when the user unparked. This help determine if user indeed unparked or not and if we should hold the spot as 'free' for 30 seconds.
-        CLLocation* lastSignificantLocation = [[CLLocation alloc]initWithLatitude:self.userInfo.current_session.last_significant_location.latitude longitude:self.userInfo.current_session.last_significant_location.longitude];
-        CLLocation* lastParkedLocation = [[CLLocation alloc]initWithLatitude:self.userInfo.current_session.parking_location.latitude longitude:self.userInfo.current_session.parking_location.longitude];
-        currentSession.distance_from_car = [lastParkedLocation distanceFromLocation:lastSignificantLocation];
-    }else{
-        currentSession.distance_from_car = [locations[locations.count - 1] distanceFromLocation:car];
-    }
+    currentSession.distance_from_car = [locations[locations.count - 1] distanceFromLocation:car];
     currentSession.time_from_car = currentSession.distance_from_car;
     
     locationCount++;
@@ -593,7 +588,11 @@
         locationCount = 0;
         [Communicator reportStatus:currentSession completion:^(BOOL success, BOOL message_exists, NSString *message) {
             if (!success){
-                NSLog(@"Failed to update status: %@",message);
+                NSLog(@"Failed to update status: %@",message);            
+            }else{
+                if (status == NOT_PARKED){
+                    [self.userInfo.log addObject:[NSString stringWithFormat:@"*Reporting status NOT_PARKED. Parking location: %f,%f Time elapsed: %f Distance from car: %f Current Location: %f,%f Car Location: %f,%f",self.userInfo.current_session.parking_location.latitude,self.userInfo.current_session.parking_location.longitude,(([[NSDate date] timeIntervalSince1970] * (long)1000) - self.userInfo.current_session.timestamp),currentSession.distance_from_car,locations[locations.count - 1].coordinate.latitude,locations[locations.count - 1].coordinate.longitude,car.coordinate.latitude,car.coordinate.longitude]];
+                }
             }
         }];
     }
@@ -901,8 +900,8 @@
             MKCoordinateRegion region;
             region.center.latitude     = placemark.location.coordinate.latitude;
             region.center.longitude    = placemark.location.coordinate.longitude;
-            region.span.latitudeDelta  = .01;
-            region.span.longitudeDelta = .0005;
+            region.span.latitudeDelta  = .1;
+            region.span.longitudeDelta = .05;
             dispatch_async(dispatch_get_main_queue(), ^(void){
                 [map setRegion:region animated:YES];
                 completion(YES,error,placemark.location.coordinate);

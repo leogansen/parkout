@@ -30,9 +30,6 @@ static NSString* condition;
             user.current_session.status = NOT_PARKED;
             [Utils addToLog:user message:[NSString stringWithFormat:@"Top. setting status to NOT_PARKED. Speed: %f",location.speed]];
             
-            [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"parking_location_lat"];
-            [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"parking_location_lng"];
-            
             [user.current_session.user_locations removeAllObjects];
             user.current_session.last_significant_location = location.coordinate;
             
@@ -65,7 +62,7 @@ static NSString* condition;
                 
                 
                 if (user.current_session.status == NOT_PARKED) {
-                    user.current_session.parking_location = [user.current_session.user_locations[0] coordinate];
+                    user.current_session.parking_location = [location coordinate];
                     NSLog(@"setting status to parking");
                     user.current_session.status = PARKING;
                     [Utils addToLog:user message:[NSString stringWithFormat:@"2. setting status to PARKING"]];
@@ -218,9 +215,14 @@ static NSString* condition;
         
         if (user.current_session.status == NOT_PARKED){
             user.current_session.timestamp = ([[NSDate date] timeIntervalSince1970] * (long)1000);
+            [[NSUserDefaults standardUserDefaults]setObject:[NSNumber numberWithLong:user.current_session.timestamp] forKey:@"timestamp"];
         }
         if (user.current_session.status == PARKING && user.current_session.prevStatus != UNASSIGNED){//Sanity check...
+
             user.current_session.parking_location = location.coordinate;//Override algorithmic idea for now
+            [[NSUserDefaults standardUserDefaults]setObject:[NSString stringWithFormat:@"%.8f",user.current_session.parking_location.latitude] forKey:@"parking_location_lat"];
+            [[NSUserDefaults standardUserDefaults]setObject:[NSString stringWithFormat:@"%.8f",user.current_session.parking_location.longitude] forKey:@"parking_location_lng"];
+            
             [user.log addObject:[NSString stringWithFormat:@"Setting parking location to: %f,%f",user.current_session.parking_location.latitude,user.current_session.parking_location.longitude]];
         }
         
@@ -236,6 +238,7 @@ static NSString* condition;
         //we remove this from the system only after 30 seconds. For the user himself, it disappears from the defaults right away
         [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"parking_location_lat"];
         [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"parking_location_lng"];
+        [user.log addObject:[NSString stringWithFormat:@"EXPIRED PARKING. Removing parking location because time elapsed is: %lf",(([[NSDate date] timeIntervalSince1970] * (long)1000) - user.current_session.timestamp)]];
     }
     return user.current_session.status;
 }
